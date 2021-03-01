@@ -1,66 +1,93 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { User } from '../../database/models/user.model';
-import { IUserForPost } from '../../interfaces/user.interfaces';
+import { User } from './user.model';
 import { Sequelize } from 'sequelize-typescript';
 import { Transaction } from 'sequelize';
+import { UpdateUserDto } from './updateUser.dto';
+import { CreateUserDto } from './createUser.dto';
+import { IResposeMessage } from '../../interfaces/IResposeMessage';
 
 @Injectable()
 export class UsersService {
 	constructor(
 		@InjectModel(User)
-		private usersRepository: typeof User,
+		private readonly usersRepository: typeof User,
 		private readonly sequelize: Sequelize
 	) {}
 
-	public async findAll(): Promise<User[]> {
-		return await this.usersRepository.findAll<User>();
-	}
-
-	public async findOne(userId: string): Promise<User> {
-		return await this.usersRepository.findOne<User>({ where: { id: userId } });
-	}
-
-	public async create(userData): Promise<User> {
-		// try {
-		// 	return await this.sequelize.transaction(async () => {
-		// 		return await this.usersRepository.create<User>({ ...userData });
-		// 	});
-		// } catch (err) {}
-		return await this.usersRepository.create<User>(...userData);
-	}
-
-	public async updateAll(newArray): Promise<void> {
+	public async findAll(): Promise<User[] | IResposeMessage> {
 		try {
-			await this.sequelize.transaction(async () => {
-				await this.usersRepository.destroy({ where: {}, truncate: true });
+			return await this.usersRepository.findAll<User>({ attributes: { exclude: ['password'] } });
+		} catch (error) {
+			return { message: error.message };
+		}
+	}
+
+	public async findOne(userId: string): Promise<User | IResposeMessage> {
+		try {
+			const user = await this.usersRepository.findOne<User>({
+				where: { id: userId },
+				attributes: { exclude: ['password'] }
+			});
+			if (!user) {
+				throw new Error('userId not exist');
+			}
+			return user;
+		} catch (error) {
+			return { message: error.message };
+		}
+	}
+
+	public async create(userData: CreateUserDto): Promise<IResposeMessage> {
+		try {
+			return await this.sequelize.transaction(async () => {
+				await this.usersRepository.create<User>({ ...userData });
+				return { message: 'create:success' };
+			});
+		} catch (error) {
+			return { message: error.message };
+		}
+	}
+
+	public async updateAll(newArray): Promise<IResposeMessage> {
+		try {
+			return await this.sequelize.transaction(async (transaction: Transaction) => {
+				await this.usersRepository.truncate({ cascade: true, transaction });
 				await this.usersRepository.bulkCreate(newArray);
+				return { message: 'updateAll:success' };
 			});
-		} catch (err) {}
+		} catch (error) {
+			return { message: error.message };
+		}
 	}
 
-	public async updateOne(newUserData: IUserForPost, userId: string): Promise<void> {
+	public async updateOne(updateUserData: UpdateUserDto, userId: string): Promise<IResposeMessage> {
 		try {
-			await this.sequelize.transaction(async (transaction: Transaction) => {
-				await this.usersRepository.update(
-					{ ...newUserData },
-					{
-						where: { id: userId },
-						transaction
-					}
-				);
+			return await this.sequelize.transaction(async (transaction: Transaction) => {
+				const user = await this.usersRepository.findOne<User>({ where: { id: userId } });
+				if (!user) {
+					throw new Error('userId not exist');
+				}
+				await user.update({ ...updateUserData }, { transaction });
+				return { message: 'updateOne:success' };
 			});
-		} catch (err) {}
+		} catch (error) {
+			return { message: error.message };
+		}
 	}
 
-	public async remove(userId: string): Promise<void> {
+	public async remove(userId: string): Promise<IResposeMessage> {
 		try {
-			await this.sequelize.transaction(async (transaction: Transaction) => {
-				await this.usersRepository.destroy({
-					where: { id: userId },
-					transaction
-				});
+			return await this.sequelize.transaction(async (transaction: Transaction) => {
+				const user = await this.usersRepository.findOne<User>({ where: { id: userId } });
+				if (!user) {
+					throw new Error('userId not exist');
+				}
+				await user.destroy({ transaction });
+				return { message: 'remove:success' };
 			});
-		} catch (err) {}
+		} catch (error) {
+			return { message: error.message };
+		}
 	}
 }

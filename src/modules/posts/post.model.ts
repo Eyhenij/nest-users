@@ -1,8 +1,13 @@
-import { Column, Table, DataType, Model, ForeignKey } from 'sequelize-typescript';
-import { User } from './user.model';
+import { Column, Table, DataType, Model, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { User } from '../users/user.model';
 
-@Table
-export class Post extends Model<Post> {
+@Table({
+	timestamps: false,
+	freezeTableName: true,
+	tableName: 'posts'
+})
+@BelongsTo(() => User, { as: 'posts', onDelete: 'CASCADE' })
+export class Post extends Model {
 	@Column({
 		type: DataType.INTEGER,
 		allowNull: false,
@@ -10,11 +15,11 @@ export class Post extends Model<Post> {
 	})
 	public id: number;
 
+	@ForeignKey(() => User)
 	@Column({
 		type: DataType.INTEGER,
 		allowNull: false
 	})
-	@ForeignKey(() => User)
 	public userId: number;
 
 	@Column({

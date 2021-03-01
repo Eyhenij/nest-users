@@ -1,9 +1,13 @@
-import { Column, Table, DataType, Model, HasMany, BeforeValidate } from 'sequelize-typescript';
+import { Column, Table, DataType, Model, HasMany } from 'sequelize-typescript';
 import * as bcrypt from 'bcrypt';
-import { Post } from './post.model';
+import { Post } from '../posts/post.model';
 
-@Table
-export class User extends Model<User> {
+@Table({
+	timestamps: false,
+	freezeTableName: true,
+	tableName: 'users'
+})
+export class User extends Model {
 	@Column({
 		type: DataType.STRING,
 		allowNull: false
@@ -28,9 +32,9 @@ export class User extends Model<User> {
 	@Column({
 		type: DataType.STRING,
 		allowNull: false,
-		async set(value) {
-			const salt = await bcrypt.genSalt();
-			await this.setDataValue('password', bcrypt.hash(value, salt));
+		set(value) {
+			const salt = bcrypt.genSaltSync();
+			this.setDataValue('password', bcrypt.hashSync(value, salt));
 		}
 	})
 	public password: string;
@@ -61,12 +65,12 @@ export class User extends Model<User> {
 	@HasMany(() => Post)
 	public posts: Post[];
 
-	@BeforeValidate
-	public static validateData(user: User, options: any) {
-		if (!options.transaction) throw new Error('Missing transaction.');
-		if (!user.name) throw new Error('user:create:missingFirstName');
-		if (!user.login) throw new Error('user:create:missingLastName');
-		if (!user.email) throw new Error('user:create:missingEmail');
-		if (!user.password) throw new Error('user:create:missingPassword');
-	}
+	// @BeforeValidate
+	// public static validateData(user: User, options: any) {
+	// 	if (!options.transaction) throw new Error('Missing transaction.');
+	// 	if (!user.name) throw new Error('user:create:missingName');
+	// 	if (!user.login) throw new Error('user:create:missingLogin');
+	// 	if (!user.email) throw new Error('user:create:missingEmail');
+	// 	if (!user.password) throw new Error('user:create:missingPassword');
+	// }
 }
