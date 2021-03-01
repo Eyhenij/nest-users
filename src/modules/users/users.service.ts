@@ -1,36 +1,36 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './user.model';
 import { Sequelize } from 'sequelize-typescript';
 import { Transaction } from 'sequelize';
 import { UpdateUserDto } from './updateUser.dto';
 import { CreateUserDto } from './createUser.dto';
-import { IResposeMessage } from '../../interfaces/IResposeMessage';
+import { IResponseMessage } from '../../interfaces/response.interfaces';
 
 @Injectable()
 export class UsersService {
 	constructor(
 		@InjectModel(User)
-		private readonly usersRepository: typeof User,
-		private readonly sequelize: Sequelize
+		private readonly _usersRepository: typeof User,
+		private readonly _sequelize: Sequelize
 	) {}
 
-	public async findAll(): Promise<User[] | IResposeMessage> {
+	public async findAll(): Promise<User[] | IResponseMessage> {
 		try {
-			return await this.usersRepository.findAll<User>({ attributes: { exclude: ['password'] } });
+			return await this._usersRepository.findAll<User>({ attributes: { exclude: ['password'] } });
 		} catch (error) {
 			return { message: error.message };
 		}
 	}
 
-	public async findOne(userId: string): Promise<User | IResposeMessage> {
+	public async findOne(userId: string): Promise<User | IResponseMessage> {
 		try {
-			const user = await this.usersRepository.findOne<User>({
+			const user = await this._usersRepository.findOne<User>({
 				where: { id: userId },
 				attributes: { exclude: ['password'] }
 			});
 			if (!user) {
-				throw new Error('userId not exist');
+				throw new NotFoundException('userId not exist');
 			}
 			return user;
 		} catch (error) {
@@ -38,10 +38,10 @@ export class UsersService {
 		}
 	}
 
-	public async create(userData: CreateUserDto): Promise<IResposeMessage> {
+	public async create(userData: CreateUserDto): Promise<IResponseMessage> {
 		try {
-			return await this.sequelize.transaction(async () => {
-				await this.usersRepository.create<User>({ ...userData });
+			return await this._sequelize.transaction(async () => {
+				await this._usersRepository.create<User>({ ...userData });
 				return { message: 'create:success' };
 			});
 		} catch (error) {
@@ -49,11 +49,11 @@ export class UsersService {
 		}
 	}
 
-	public async updateAll(newArray): Promise<IResposeMessage> {
+	public async updateAll(newArray): Promise<IResponseMessage> {
 		try {
-			return await this.sequelize.transaction(async (transaction: Transaction) => {
-				await this.usersRepository.truncate({ cascade: true, transaction });
-				await this.usersRepository.bulkCreate(newArray);
+			return await this._sequelize.transaction(async (transaction: Transaction) => {
+				await this._usersRepository.truncate({ cascade: true, transaction });
+				await this._usersRepository.bulkCreate(newArray);
 				return { message: 'updateAll:success' };
 			});
 		} catch (error) {
@@ -61,12 +61,12 @@ export class UsersService {
 		}
 	}
 
-	public async updateOne(updateUserData: UpdateUserDto, userId: string): Promise<IResposeMessage> {
+	public async updateOne(updateUserData: UpdateUserDto, userId: string): Promise<IResponseMessage> {
 		try {
-			return await this.sequelize.transaction(async (transaction: Transaction) => {
-				const user = await this.usersRepository.findOne<User>({ where: { id: userId } });
+			return await this._sequelize.transaction(async (transaction: Transaction) => {
+				const user = await this._usersRepository.findOne<User>({ where: { id: userId } });
 				if (!user) {
-					throw new Error('userId not exist');
+					throw new NotFoundException('userId not exist');
 				}
 				await user.update({ ...updateUserData }, { transaction });
 				return { message: 'updateOne:success' };
@@ -76,12 +76,12 @@ export class UsersService {
 		}
 	}
 
-	public async remove(userId: string): Promise<IResposeMessage> {
+	public async remove(userId: string): Promise<IResponseMessage> {
 		try {
-			return await this.sequelize.transaction(async (transaction: Transaction) => {
-				const user = await this.usersRepository.findOne<User>({ where: { id: userId } });
+			return await this._sequelize.transaction(async (transaction: Transaction) => {
+				const user = await this._usersRepository.findOne<User>({ where: { id: userId } });
 				if (!user) {
-					throw new Error('userId not exist');
+					throw new NotFoundException('userId not exist');
 				}
 				await user.destroy({ transaction });
 				return { message: 'remove:success' };

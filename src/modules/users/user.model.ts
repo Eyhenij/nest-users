@@ -64,13 +64,4 @@ export class User extends Model {
 
 	@HasMany(() => Post)
 	public posts: Post[];
-
-	// @BeforeValidate
-	// public static validateData(user: User, options: any) {
-	// 	if (!options.transaction) throw new Error('Missing transaction.');
-	// 	if (!user.name) throw new Error('user:create:missingName');
-	// 	if (!user.login) throw new Error('user:create:missingLogin');
-	// 	if (!user.email) throw new Error('user:create:missingEmail');
-	// 	if (!user.password) throw new Error('user:create:missingPassword');
-	// }
 }
