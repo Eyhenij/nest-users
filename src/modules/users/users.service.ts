@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './user.model';
 import { Sequelize } from 'sequelize-typescript';
@@ -15,6 +15,11 @@ export class UsersService {
 		private readonly _sequelize: Sequelize
 	) {}
 
+	public async checkUserExist(userId: string): Promise<boolean> {
+		const user = await this._usersRepository.findOne<User>({ where: { id: userId } });
+		return !!user;
+	}
+
 	public async findAll(): Promise<User[] | IResponseMessage> {
 		try {
 			return await this._usersRepository.findAll<User>({ attributes: { exclude: ['password'] } });
@@ -23,16 +28,12 @@ export class UsersService {
 		}
 	}
 
-	public async findOne(userId: string): Promise<User | IResponseMessage> {
+	public async findOneById(userId: string): Promise<User | IResponseMessage> {
 		try {
-			const user = await this._usersRepository.findOne<User>({
+			return await this._usersRepository.findOne<User>({
 				where: { id: userId },
 				attributes: { exclude: ['password'] }
 			});
-			if (!user) {
-				throw new NotFoundException('userId not exist');
-			}
-			return user;
 		} catch (error) {
 			return { message: error.message };
 		}
@@ -64,11 +65,7 @@ export class UsersService {
 	public async updateOne(updateUserData: UpdateUserDto, userId: string): Promise<IResponseMessage> {
 		try {
 			return await this._sequelize.transaction(async (transaction: Transaction) => {
-				const user = await this._usersRepository.findOne<User>({ where: { id: userId } });
-				if (!user) {
-					throw new NotFoundException('userId not exist');
-				}
-				await user.update({ ...updateUserData }, { transaction });
+				await this._usersRepository.update<User>({ ...updateUserData }, { where: { id: userId }, transaction });
 				return { message: 'updateOne:success' };
 			});
 		} catch (error) {
@@ -79,11 +76,7 @@ export class UsersService {
 	public async remove(userId: string): Promise<IResponseMessage> {
 		try {
 			return await this._sequelize.transaction(async (transaction: Transaction) => {
-				const user = await this._usersRepository.findOne<User>({ where: { id: userId } });
-				if (!user) {
-					throw new NotFoundException('userId not exist');
-				}
-				await user.destroy({ transaction });
+				await this._usersRepository.destroy<User>({ where: { id: userId }, transaction });
 				return { message: 'remove:success' };
 			});
 		} catch (error) {

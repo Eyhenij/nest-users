@@ -4,22 +4,22 @@ import { Response } from 'express';
 import { IAuthResponseMessage, IResponseMessage } from '../../interfaces/response.interfaces';
 import { CreateUserDto } from '../users/createUser.dto';
 import { AuthDto } from './auth.dto';
-import { IsUserGuard } from '../../guards/isUser.guard';
+import { DoesLoginExistGuard } from '../../guards/does-login-exist.guard';
 
 @Controller('api')
 export class AuthController {
-	constructor(private readonly authService: AuthService) {}
+	constructor(private readonly _authService: AuthService) {}
 
 	@Post('login')
-	public async authorize(@Res() res: Response, @Body() authData: AuthDto): Promise<Response> {
-		const result: IAuthResponseMessage | IResponseMessage = await this.authService.authorize(authData);
+	public async login(@Res() res: Response, @Body() authData: AuthDto): Promise<Response> {
+		const result: IAuthResponseMessage | IResponseMessage = await this._authService.login(authData);
 		return res.status(HttpStatus.OK).json(result);
 	}
 
 	@Post('register')
-	@UseGuards(IsUserGuard)
+	@UseGuards(DoesLoginExistGuard)
 	async signUp(@Res() res: Response, @Body() user: CreateUserDto): Promise<Response> {
-		const result: IAuthResponseMessage | IResponseMessage = await this.authService.register(user);
+		const result: IAuthResponseMessage | IResponseMessage = await this._authService.register(user);
 		return res.status(HttpStatus.OK).json(result);
 	}
 }

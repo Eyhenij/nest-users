@@ -17,28 +17,26 @@ export class AuthService {
 		private readonly _jwtService: JwtService
 	) {}
 
-	private async _generateToken(userData, type) {
-		return await this._jwtService.signAsync({ ...userData, type: type });
-	}
-
 	private async _checkPassword(loginData: AuthDto, user: User) {
 		if (await bcrypt.compare(loginData.password, user.password)) {
-			return await this._generateToken(user, 'access');
+			const token = await this._jwtService.signAsync({ ...loginData, type: 'access' });
+			return { profile: user, token: `Bearer ${token}` };
 		}
 		throw new Error('You have entered incorrect password');
 	}
 
-	public async authorize(authData: AuthDto): Promise<IAuthResponseMessage | IResponseMessage> {
+	public async checkLoginExist(login: string): Promise<boolean> {
+		const user = await this._usersRepository.findOne<User>({ where: { login: login } });
+		return !!user;
+	}
+
+	public async login(authData: AuthDto): Promise<IAuthResponseMessage | IResponseMessage> {
 		try {
-			const user = await User.findOne({ where: { login: authData.login } });
+			const user = await this._usersRepository.findOne({ where: { login: authData.login } });
 			if (!user) {
 				throw new NotFoundException('user not found');
 			}
-			const token = await this._checkPassword(authData, user);
-			return {
-				profile: user,
-				token: `Bearer ${token}`
-			};
+			return await this._checkPassword(authData, user);
 		} catch (error) {
 			return { message: error.message };
 		}
