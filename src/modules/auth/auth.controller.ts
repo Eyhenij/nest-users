@@ -11,15 +11,15 @@ export class AuthController {
 	constructor(private readonly _authService: AuthService) {}
 
 	@Post('login')
-	public async login(@Res() res: Response, @Body() authData: AuthDto): Promise<Response> {
-		const result: IAuthResponseMessage | IResponseMessage = await this._authService.login(authData);
+	public async signIn(@Res() res: Response, @Body() authData: AuthDto): Promise<Response> {
+		const result: IAuthResponseMessage | IResponseMessage = await this._authService.signIn(authData);
 		return res.status(HttpStatus.OK).json(result);
 	}
 
 	@Post('register')
 	@UseGuards(DoesLoginExistGuard)
 	async signUp(@Res() res: Response, @Body() user: CreateUserDto): Promise<Response> {
-		const result: IAuthResponseMessage | IResponseMessage = await this._authService.register(user);
+		const result: IAuthResponseMessage | IResponseMessage = await this._authService.signUp(user);
 		return res.status(HttpStatus.OK).json(result);
 	}
 }

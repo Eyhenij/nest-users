@@ -6,13 +6,14 @@ import { UpdateUserDto } from './updateUser.dto';
 import { CreateUserDto } from './createUser.dto';
 import { IResponseMessage } from '../../interfaces/response.interfaces';
 import { DoesUserExistGuard } from '../../guards/does-user-exist.guard';
+import { TokenGuard } from '../../guards/token.guard';
 
 @Controller('api/users')
+@UseGuards(TokenGuard)
 export class UsersController {
 	constructor(private readonly _usersService: UsersService) {}
 
 	@Get()
-	@UseGuards()
 	public async findAll(@Res() res: Response): Promise<Response> {
 		const result: User[] | IResponseMessage = await this._usersService.findAll();
 		return res.status(HttpStatus.OK).json(result);
@@ -26,14 +27,12 @@ export class UsersController {
 	}
 
 	@Post()
-	@UseGuards()
 	public async create(@Res() res: Response, @Body() createUserData: CreateUserDto): Promise<Response> {
 		const result: IResponseMessage = await this._usersService.create(createUserData);
 		return res.status(HttpStatus.CREATED).json(result);
 	}
 
 	@Put()
-	@UseGuards()
 	public async updateAll(@Res() res: Response, @Body() updateData): Promise<Response> {
 		const result: IResponseMessage = await this._usersService.updateAll(updateData);
 		return res.status(HttpStatus.OK).json(result);

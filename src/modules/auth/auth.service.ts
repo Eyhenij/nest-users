@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from '../users/user.model';
 import { IAuthResponseMessage, IResponseMessage } from '../../interfaces/response.interfaces';
@@ -7,6 +7,7 @@ import { CreateUserDto } from '../users/createUser.dto';
 import { Sequelize } from 'sequelize-typescript';
 import { AuthDto } from './auth.dto';
 import { JwtService } from '@nestjs/jwt';
+import { Transaction } from 'sequelize';
 
 @Injectable()
 export class AuthService {
@@ -30,7 +31,7 @@ export class AuthService {
 		return !!user;
 	}
 
-	public async login(authData: AuthDto): Promise<IAuthResponseMessage | IResponseMessage> {
+	public async signIn(authData: AuthDto): Promise<IAuthResponseMessage | IResponseMessage> {
 		try {
 			const user = await this._usersRepository.findOne({ where: { login: authData.login } });
 			if (!user) {
@@ -42,14 +43,24 @@ export class AuthService {
 		}
 	}
 
-	public async register(userData: CreateUserDto): Promise<IResponseMessage> {
+	public async signUp(userData: CreateUserDto): Promise<IResponseMessage> {
 		try {
-			return await this._sequelize.transaction(async () => {
-				await this._usersRepository.create<User>({ ...userData });
+			return await this._sequelize.transaction(async (transaction: Transaction) => {
+				await this._usersRepository.create<User>({ ...userData }, { transaction });
 				return { message: 'create:success' };
 			});
 		} catch (error) {
 			return { message: error.message };
+		}
+	}
+
+	public async verifyToken(authHeaders): Promise<boolean> {
+		try {
+			const [strategy, token] = authHeaders.split(' ');
+			const result = this._jwtService.verify(token);
+			return await this.checkLoginExist(result.login);
+		} catch (error) {
+			throw new UnauthorizedException('Invalid authorization headers');
 		}
 	}
 }
