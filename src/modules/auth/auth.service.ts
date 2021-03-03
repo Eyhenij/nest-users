@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from '../users/user.model';
 import { IAuthResponseMessage, IResponseMessage } from '../../interfaces/response.interfaces';
@@ -24,21 +24,25 @@ export class AuthService {
 	}
 
 	public async signIn(authData: AuthDto): Promise<IAuthResponseMessage | IResponseMessage> {
-		const user = await this._usersRepository.findOne({ where: { login: authData.login } });
-		if (!user) {
-			throw new NotFoundException('user not found');
-		}
-		if (await bcrypt.compare(authData.password, user.password)) {
-			const token = await this._jwtService.signAsync({ ...authData, type: 'access' });
+		try {
+			const user = await this._usersRepository.findOne({ where: { login: authData.login } });
+			if (!user) {
+				return { message: 'user not found' };
+			}
+			if (await bcrypt.compare(authData.password, user.password)) {
+				const access_token = await this._jwtService.signAsync({ ...authData, type: 'access' });
 
-			// in order to don't send the user's password to the client - create new user instance without password-attribute
-			const cleanUser = await this._usersRepository.findOne({
-				where: { login: authData.login },
-				attributes: { exclude: ['password'] }
-			});
-			return { profile: cleanUser, token: `Bearer ${token}` };
+				// in order to don't send the user's password to the client - create new user instance without password-attribute
+				const cleanUser = await this._usersRepository.findOne({
+					where: { login: authData.login },
+					attributes: { exclude: ['password'] }
+				});
+				return { profile: cleanUser, token: `Bearer ${access_token}` };
+			}
+			return { message: 'You have entered incorrect password' };
+		} catch (error) {
+			return { message: error.message };
 		}
-		throw new Error('You have entered incorrect password');
 	}
 
 	public async signUp(userData: CreateUserDto): Promise<IResponseMessage> {

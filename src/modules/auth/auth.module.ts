@@ -11,8 +11,10 @@ import { JwtModule } from '@nestjs/jwt';
 	controllers: [AuthController],
 	imports: [
 		SequelizeModule.forFeature([User, Post]),
-		JwtModule.register({
-			secret: 'JwtSecretPhrase'
+		JwtModule.registerAsync({
+			useFactory: () => ({
+				secret: process.env.JWT_SECRET_PHRASE
+			})
 		})
 	],
 	exports: [AuthService]

@@ -1,10 +1,10 @@
-import { IUser } from './user.interfaces';
+import { User } from '../modules/users/user.model';
 
 export interface IResponseMessage {
 	message: string;
 }
 
 export interface IAuthResponseMessage {
-	profile: IUser;
+	profile: User;
 	token: string;
 }

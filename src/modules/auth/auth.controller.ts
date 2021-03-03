@@ -19,7 +19,7 @@ export class AuthController {
 	@Post('register')
 	@UseGuards(DoesLoginExistGuard)
 	async signUp(@Res() res: Response, @Body() user: CreateUserDto): Promise<Response> {
-		const result: IAuthResponseMessage | IResponseMessage = await this._authService.signUp(user);
+		const result: IResponseMessage = await this._authService.signUp(user);
 		return res.status(HttpStatus.OK).json(result);
 	}
 }

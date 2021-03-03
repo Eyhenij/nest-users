@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { Contains, IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class CreateUserDto {
 	@IsNotEmpty()
@@ -7,6 +7,7 @@ export class CreateUserDto {
 
 	@IsNotEmpty()
 	@IsString()
+	@Contains('@')
 	@MinLength(3)
 	readonly login: string;
 
