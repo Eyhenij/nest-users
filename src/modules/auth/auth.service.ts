@@ -18,11 +18,6 @@ export class AuthService {
 		private readonly _jwtService: JwtService
 	) {}
 
-	public async checkLoginExist(login: string): Promise<boolean> {
-		const user = await this._usersRepository.findOne<User>({ where: { login: login } });
-		return !!user;
-	}
-
 	public async signIn(authData: AuthDto): Promise<AuthResponseMessageDto | ResponseMessageDto> {
 		try {
 			const user = await this._usersRepository.findOne({ where: { login: authData.login } });
@@ -51,13 +46,24 @@ export class AuthService {
 		}
 	}
 
-	public async verifyToken(authHeaders): Promise<boolean> {
+	public async checkLoginExist(login: string): Promise<User> {
+		return await this._usersRepository.findOne<User>({ where: { login: login } });
+	}
+
+	public async verifyToken(authHeaders): Promise<User> {
 		try {
 			const [strategy, token] = authHeaders.split(' ');
-			const result = this._jwtService.verify(token);
-			return await this.checkLoginExist(result.login);
+			const result = await this._jwtService.verify(token);
+			if (result) {
+				return await this.checkLoginExist(result.login);
+			}
 		} catch (error) {
 			throw new UnauthorizedException('Invalid authorization headers');
 		}
+	}
+
+	public async verifyUserRole(authHeaders): Promise<string> {
+		const user = await this.verifyToken(authHeaders);
+		return user.role;
 	}
 }

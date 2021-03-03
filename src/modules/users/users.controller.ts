@@ -23,6 +23,7 @@ import { DoesUserExistGuard } from '../../guards/does-user-exist.guard';
 import { AuthTokenGuard } from '../../guards/auth.token.guard';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UpdateAllUsersDto } from './dto/updateAllUsersDto';
+import { RoleGuard } from '../../guards/role.guard';
 
 @Controller('api/users')
 @ApiTags('user-accounts')
@@ -45,7 +46,7 @@ export class UsersController {
 	@ApiOperation({ description: 'get one user-account by id' })
 	@ApiResponse({ status: 200, description: 'get one user-account:success', type: User })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
-	@ApiResponse({ status: 404, description: 'there is no user with the id:not-found', type: NotFoundException })
+	@ApiResponse({ status: 404, description: 'userId not exist', type: NotFoundException })
 	public async findOne(@Res() res: Response, @Param('id') userId: string): Promise<Response> {
 		const result: User | ResponseMessageDto = await this._usersService.findOneById(userId);
 		return res.status(HttpStatus.OK).json(result);
@@ -62,10 +63,11 @@ export class UsersController {
 	}
 
 	@Put()
+	@UseGuards(RoleGuard)
 	@ApiOperation({ description: 'update all user-accounts' })
 	@ApiResponse({ status: 201, description: 'update all user-accounts:success', type: ResponseMessageDto })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
-	@ApiResponse({ status: 403, description: 'you have no rights:forbidden', type: ForbiddenException })
+	@ApiResponse({ status: 403, description: 'you have no rights', type: ForbiddenException })
 	@ApiBody({ type: [UpdateAllUsersDto] })
 	public async updateAll(@Res() res: Response, @Body() updateData: UpdateAllUsersDto): Promise<Response> {
 		const result: ResponseMessageDto = await this._usersService.updateAll(updateData);
@@ -73,11 +75,13 @@ export class UsersController {
 	}
 
 	@Put(':id')
+	@UseGuards(RoleGuard)
 	@UseGuards(DoesUserExistGuard)
 	@ApiOperation({ description: 'update one user-account by id' })
 	@ApiResponse({ status: 201, description: 'update user-account:success', type: ResponseMessageDto })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
-	@ApiResponse({ status: 404, description: 'there is no user with the id:not-found', type: NotFoundException })
+	@ApiResponse({ status: 403, description: 'you have no rights', type: ForbiddenException })
+	@ApiResponse({ status: 404, description: 'userId not exist', type: NotFoundException })
 	@ApiBody({ type: [CreateUserDto] })
 	public async updateOne(@Res() res: Response, @Body() updateUserData: UpdateUserDto, @Param('id') userId: string): Promise<Response> {
 		const result: ResponseMessageDto = await this._usersService.updateOne(updateUserData, userId);
@@ -85,12 +89,13 @@ export class UsersController {
 	}
 
 	@Delete(':id')
+	@UseGuards(RoleGuard)
 	@UseGuards(DoesUserExistGuard)
 	@ApiOperation({ description: 'delete user-account by id' })
 	@ApiResponse({ status: 200, description: 'delete user-account:success', type: ResponseMessageDto })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
-	@ApiResponse({ status: 403, description: 'you have no rights:forbidden', type: ForbiddenException })
-	@ApiResponse({ status: 404, description: 'there is no user with the id:not-found', type: NotFoundException })
+	@ApiResponse({ status: 403, description: 'you have no rights', type: ForbiddenException })
+	@ApiResponse({ status: 404, description: 'userId not exist', type: NotFoundException })
 	public async remove(@Res() res: Response, @Param('id') userId: string): Promise<Response> {
 		const result: ResponseMessageDto = await this._usersService.remove(userId);
 		return res.status(HttpStatus.OK).json(result);
