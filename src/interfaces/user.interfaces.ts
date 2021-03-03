@@ -4,16 +4,9 @@ export interface IUser {
 	name: string;
 	login: string;
 	email: string;
-	password: string;
+	password?: string;
 	id: number;
 	role: string;
 	status: string;
 	posts: IPost[];
-}
-
-export interface IUserForPost {
-	name: string;
-	login: string;
-	email: string;
-	password: string;
 }

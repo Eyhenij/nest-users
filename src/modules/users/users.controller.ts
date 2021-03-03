@@ -2,14 +2,14 @@ import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Res, UseGu
 import { UsersService } from './users.service';
 import { Response } from 'express';
 import { User } from './user.model';
-import { UpdateUserDto } from './updateUser.dto';
-import { CreateUserDto } from './createUser.dto';
+import { UpdateUserDto } from './dto/updateUser.dto';
+import { CreateUserDto } from './dto/createUser.dto';
 import { IResponseMessage } from '../../interfaces/response.interfaces';
 import { DoesUserExistGuard } from '../../guards/does-user-exist.guard';
-import { TokenGuard } from '../../guards/token.guard';
+import { AuthTokenGuard } from '../../guards/auth.token.guard';
 
 @Controller('api/users')
-@UseGuards(TokenGuard)
+@UseGuards(AuthTokenGuard)
 export class UsersController {
 	constructor(private readonly _usersService: UsersService) {}
 

@@ -3,9 +3,9 @@ import { InjectModel } from '@nestjs/sequelize';
 import { User } from '../users/user.model';
 import { IAuthResponseMessage, IResponseMessage } from '../../interfaces/response.interfaces';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from '../users/createUser.dto';
+import { CreateUserDto } from '../users/dto/createUser.dto';
 import { Sequelize } from 'sequelize-typescript';
-import { AuthDto } from './auth.dto';
+import { AuthDto } from './dto/auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import { Transaction } from 'sequelize';
 
@@ -18,29 +18,27 @@ export class AuthService {
 		private readonly _jwtService: JwtService
 	) {}
 
-	private async _checkPassword(loginData: AuthDto, user: User) {
-		if (await bcrypt.compare(loginData.password, user.password)) {
-			const token = await this._jwtService.signAsync({ ...loginData, type: 'access' });
-			return { profile: user, token: `Bearer ${token}` };
-		}
-		throw new Error('You have entered incorrect password');
-	}
-
 	public async checkLoginExist(login: string): Promise<boolean> {
 		const user = await this._usersRepository.findOne<User>({ where: { login: login } });
 		return !!user;
 	}
 
 	public async signIn(authData: AuthDto): Promise<IAuthResponseMessage | IResponseMessage> {
-		try {
-			const user = await this._usersRepository.findOne({ where: { login: authData.login } });
-			if (!user) {
-				throw new NotFoundException('user not found');
-			}
-			return await this._checkPassword(authData, user);
-		} catch (error) {
-			return { message: error.message };
+		const user = await this._usersRepository.findOne({ where: { login: authData.login } });
+		if (!user) {
+			throw new NotFoundException('user not found');
 		}
+		if (await bcrypt.compare(authData.password, user.password)) {
+			const token = await this._jwtService.signAsync({ ...authData, type: 'access' });
+
+			// in order to don't send the user's password to the client - create new user instance without password-attribute
+			const cleanUser = await this._usersRepository.findOne({
+				where: { login: authData.login },
+				attributes: { exclude: ['password'] }
+			});
+			return { profile: cleanUser, token: `Bearer ${token}` };
+		}
+		throw new Error('You have entered incorrect password');
 	}
 
 	public async signUp(userData: CreateUserDto): Promise<IResponseMessage> {

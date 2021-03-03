@@ -2,8 +2,8 @@ import { Body, Controller, HttpStatus, Post, Res, UseGuards } from '@nestjs/comm
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { IAuthResponseMessage, IResponseMessage } from '../../interfaces/response.interfaces';
-import { CreateUserDto } from '../users/createUser.dto';
-import { AuthDto } from './auth.dto';
+import { CreateUserDto } from '../users/dto/createUser.dto';
+import { AuthDto } from './dto/auth.dto';
 import { DoesLoginExistGuard } from '../../guards/does-login-exist.guard';
 
 @Controller('api')

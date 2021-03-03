@@ -3,8 +3,8 @@ import { InjectModel } from '@nestjs/sequelize';
 import { User } from './user.model';
 import { Sequelize } from 'sequelize-typescript';
 import { Transaction } from 'sequelize';
-import { UpdateUserDto } from './updateUser.dto';
-import { CreateUserDto } from './createUser.dto';
+import { UpdateUserDto } from './dto/updateUser.dto';
+import { CreateUserDto } from './dto/createUser.dto';
 import { IResponseMessage } from '../../interfaces/response.interfaces';
 
 @Injectable()
