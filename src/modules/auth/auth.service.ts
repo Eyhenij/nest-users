@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from '../users/user.model';
-import { IAuthResponseMessage, IResponseMessage } from '../../interfaces/response.interfaces';
+import { AuthResponseMessageDto, ResponseMessageDto } from '../../interfaces/response.dtos';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from '../users/dto/createUser.dto';
 import { Sequelize } from 'sequelize-typescript';
@@ -23,36 +23,31 @@ export class AuthService {
 		return !!user;
 	}
 
-	public async signIn(authData: AuthDto): Promise<IAuthResponseMessage | IResponseMessage> {
+	public async signIn(authData: AuthDto): Promise<AuthResponseMessageDto | ResponseMessageDto> {
 		try {
 			const user = await this._usersRepository.findOne({ where: { login: authData.login } });
 			if (!user) {
-				return { message: 'user not found' };
+				return { message: 'user not found', success: false };
 			}
 			if (await bcrypt.compare(authData.password, user.password)) {
 				const access_token = await this._jwtService.signAsync({ ...authData, type: 'access' });
-
-				// in order to don't send the user's password to the client - create new user instance without password-attribute
-				const cleanUser = await this._usersRepository.findOne({
-					where: { login: authData.login },
-					attributes: { exclude: ['password'] }
-				});
+				const { password, ...cleanUser } = user['dataValues'];
 				return { profile: cleanUser, token: `Bearer ${access_token}` };
 			}
-			return { message: 'You have entered incorrect password' };
+			return { message: 'You have entered incorrect password', success: false };
 		} catch (error) {
-			return { message: error.message };
+			return { message: error.message, success: false };
 		}
 	}
 
-	public async signUp(userData: CreateUserDto): Promise<IResponseMessage> {
+	public async signUp(userData: CreateUserDto): Promise<ResponseMessageDto> {
 		try {
 			return await this._sequelize.transaction(async (transaction: Transaction) => {
 				await this._usersRepository.create<User>({ ...userData }, { transaction });
-				return { message: 'create:success' };
+				return { message: 'create:success', success: true };
 			});
 		} catch (error) {
-			return { message: error.message };
+			return { message: error.message, success: false };
 		}
 	}
 

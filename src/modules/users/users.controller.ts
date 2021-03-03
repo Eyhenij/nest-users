@@ -1,54 +1,98 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Res, UseGuards } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Delete,
+	ForbiddenException,
+	Get,
+	HttpStatus,
+	NotFoundException,
+	Param,
+	Post,
+	Put,
+	Res,
+	UnauthorizedException,
+	UseGuards
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Response } from 'express';
 import { User } from './user.model';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { CreateUserDto } from './dto/createUser.dto';
-import { IResponseMessage } from '../../interfaces/response.interfaces';
+import { ResponseMessageDto } from '../../interfaces/response.dtos';
 import { DoesUserExistGuard } from '../../guards/does-user-exist.guard';
 import { AuthTokenGuard } from '../../guards/auth.token.guard';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UpdateAllUsersDto } from './dto/updateAllUsersDto';
 
 @Controller('api/users')
+@ApiTags('user-accounts')
+@ApiBearerAuth()
 @UseGuards(AuthTokenGuard)
 export class UsersController {
 	constructor(private readonly _usersService: UsersService) {}
 
 	@Get()
+	@ApiOperation({ description: 'get all user-accounts' })
+	@ApiResponse({ status: 200, description: 'get array of user-accounts:success', type: [User] })
+	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
 	public async findAll(@Res() res: Response): Promise<Response> {
-		const result: User[] | IResponseMessage = await this._usersService.findAll();
+		const result: User[] | ResponseMessageDto = await this._usersService.findAll();
 		return res.status(HttpStatus.OK).json(result);
 	}
 
 	@Get(':id')
 	@UseGuards(DoesUserExistGuard)
+	@ApiOperation({ description: 'get one user-account by id' })
+	@ApiResponse({ status: 200, description: 'get one user-account:success', type: User })
+	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
+	@ApiResponse({ status: 404, description: 'there is no user with the id:not-found', type: NotFoundException })
 	public async findOne(@Res() res: Response, @Param('id') userId: string): Promise<Response> {
-		const result: User | IResponseMessage = await this._usersService.findOneById(userId);
+		const result: User | ResponseMessageDto = await this._usersService.findOneById(userId);
 		return res.status(HttpStatus.OK).json(result);
 	}
 
 	@Post()
+	@ApiOperation({ description: 'create new user-account' })
+	@ApiResponse({ status: 201, description: 'create user-account:success', type: ResponseMessageDto })
+	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
+	@ApiBody({ type: [CreateUserDto] })
 	public async create(@Res() res: Response, @Body() createUserData: CreateUserDto): Promise<Response> {
-		const result: IResponseMessage = await this._usersService.create(createUserData);
+		const result: ResponseMessageDto = await this._usersService.create(createUserData);
 		return res.status(HttpStatus.CREATED).json(result);
 	}
 
 	@Put()
-	public async updateAll(@Res() res: Response, @Body() updateData): Promise<Response> {
-		const result: IResponseMessage = await this._usersService.updateAll(updateData);
-		return res.status(HttpStatus.OK).json(result);
+	@ApiOperation({ description: 'update all user-accounts' })
+	@ApiResponse({ status: 201, description: 'update all user-accounts:success', type: ResponseMessageDto })
+	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
+	@ApiResponse({ status: 403, description: 'you have no rights:forbidden', type: ForbiddenException })
+	@ApiBody({ type: [UpdateAllUsersDto] })
+	public async updateAll(@Res() res: Response, @Body() updateData: UpdateAllUsersDto): Promise<Response> {
+		const result: ResponseMessageDto = await this._usersService.updateAll(updateData);
+		return res.status(HttpStatus.CREATED).json(result);
 	}
 
 	@Put(':id')
 	@UseGuards(DoesUserExistGuard)
+	@ApiOperation({ description: 'update one user-account by id' })
+	@ApiResponse({ status: 201, description: 'update user-account:success', type: ResponseMessageDto })
+	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
+	@ApiResponse({ status: 404, description: 'there is no user with the id:not-found', type: NotFoundException })
+	@ApiBody({ type: [CreateUserDto] })
 	public async updateOne(@Res() res: Response, @Body() updateUserData: UpdateUserDto, @Param('id') userId: string): Promise<Response> {
-		const result: IResponseMessage = await this._usersService.updateOne(updateUserData, userId);
-		return res.status(HttpStatus.OK).json(result);
+		const result: ResponseMessageDto = await this._usersService.updateOne(updateUserData, userId);
+		return res.status(HttpStatus.CREATED).json(result);
 	}
 
 	@Delete(':id')
 	@UseGuards(DoesUserExistGuard)
+	@ApiOperation({ description: 'delete user-account by id' })
+	@ApiResponse({ status: 200, description: 'delete user-account:success', type: ResponseMessageDto })
+	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
+	@ApiResponse({ status: 403, description: 'you have no rights:forbidden', type: ForbiddenException })
+	@ApiResponse({ status: 404, description: 'there is no user with the id:not-found', type: NotFoundException })
 	public async remove(@Res() res: Response, @Param('id') userId: string): Promise<Response> {
-		const result: IResponseMessage = await this._usersService.remove(userId);
+		const result: ResponseMessageDto = await this._usersService.remove(userId);
 		return res.status(HttpStatus.OK).json(result);
 	}
 }

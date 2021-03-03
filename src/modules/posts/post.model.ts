@@ -1,5 +1,6 @@
 import { Column, Table, DataType, Model, ForeignKey, BelongsTo } from 'sequelize-typescript';
 import { User } from '../users/user.model';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Table({
 	timestamps: false,
@@ -8,6 +9,7 @@ import { User } from '../users/user.model';
 })
 @BelongsTo(() => User, { as: 'posts', onDelete: 'CASCADE' })
 export class Post extends Model {
+	@ApiProperty()
 	@Column({
 		type: DataType.INTEGER,
 		allowNull: false,
@@ -15,6 +17,7 @@ export class Post extends Model {
 	})
 	public id: number;
 
+	@ApiProperty()
 	@ForeignKey(() => User)
 	@Column({
 		type: DataType.INTEGER,
@@ -22,6 +25,7 @@ export class Post extends Model {
 	})
 	public userId: number;
 
+	@ApiProperty()
 	@Column({
 		type: DataType.STRING,
 		defaultValue: '',
@@ -29,6 +33,7 @@ export class Post extends Model {
 	})
 	public content: string;
 
+	@ApiProperty()
 	@Column({
 		type: DataType.INTEGER,
 		defaultValue: 0,
@@ -36,6 +41,7 @@ export class Post extends Model {
 	})
 	public countOfLikes: number;
 
+	@ApiProperty()
 	@Column({
 		type: DataType.INTEGER,
 		defaultValue: 0,

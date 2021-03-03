@@ -5,7 +5,7 @@ import { Sequelize } from 'sequelize-typescript';
 import { Transaction } from 'sequelize';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { CreateUserDto } from './dto/createUser.dto';
-import { IResponseMessage } from '../../interfaces/response.interfaces';
+import { ResponseMessageDto } from '../../interfaces/response.dtos';
 
 @Injectable()
 export class UsersService {
@@ -20,67 +20,67 @@ export class UsersService {
 		return !!user;
 	}
 
-	public async findAll(): Promise<User[] | IResponseMessage> {
+	public async findAll(): Promise<User[] | ResponseMessageDto> {
 		try {
 			return await this._usersRepository.findAll<User>({ attributes: { exclude: ['password'] } });
 		} catch (error) {
-			return { message: error.message };
+			return { message: error.message, success: false };
 		}
 	}
 
-	public async findOneById(userId: string): Promise<User | IResponseMessage> {
+	public async findOneById(userId: string): Promise<User | ResponseMessageDto> {
 		try {
 			return await this._usersRepository.findOne<User>({
 				where: { id: userId },
 				attributes: { exclude: ['password'] }
 			});
 		} catch (error) {
-			return { message: error.message };
+			return { message: error.message, success: false };
 		}
 	}
 
-	public async create(userData: CreateUserDto): Promise<IResponseMessage> {
+	public async create(userData: CreateUserDto): Promise<ResponseMessageDto> {
 		try {
 			return await this._sequelize.transaction(async () => {
 				await this._usersRepository.create<User>({ ...userData });
-				return { message: 'create:success' };
+				return { message: 'create user-account:success', success: true };
 			});
 		} catch (error) {
-			return { message: error.message };
+			return { message: error.message, success: false };
 		}
 	}
 
-	public async updateAll(newArray): Promise<IResponseMessage> {
+	public async updateAll(newArray): Promise<ResponseMessageDto> {
 		try {
 			return await this._sequelize.transaction(async (transaction: Transaction) => {
 				await this._usersRepository.truncate({ cascade: true, transaction });
 				await this._usersRepository.bulkCreate(newArray);
-				return { message: 'updateAll:success' };
+				return { message: 'update all user-accounts:success', success: true };
 			});
 		} catch (error) {
-			return { message: error.message };
+			return { message: error.message, success: false };
 		}
 	}
 
-	public async updateOne(updateUserData: UpdateUserDto, userId: string): Promise<IResponseMessage> {
+	public async updateOne(updateUserData: UpdateUserDto, userId: string): Promise<ResponseMessageDto> {
 		try {
 			return await this._sequelize.transaction(async (transaction: Transaction) => {
 				await this._usersRepository.update<User>({ ...updateUserData }, { where: { id: userId }, transaction });
-				return { message: 'updateOne:success' };
+				return { message: 'update user-account:success', success: true };
 			});
 		} catch (error) {
-			return { message: error.message };
+			return { message: error.message, success: false };
 		}
 	}
 
-	public async remove(userId: string): Promise<IResponseMessage> {
+	public async remove(userId: string): Promise<ResponseMessageDto> {
 		try {
 			return await this._sequelize.transaction(async (transaction: Transaction) => {
 				await this._usersRepository.destroy<User>({ where: { id: userId }, transaction });
-				return { message: 'remove:success' };
+				return { message: 'delete user-account:success', success: true };
 			});
 		} catch (error) {
-			return { message: error.message };
+			return { message: error.message, success: false };
 		}
 	}
 }
