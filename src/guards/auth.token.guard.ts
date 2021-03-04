@@ -10,6 +10,6 @@ export class AuthTokenGuard implements CanActivate {
 		if (request.headers['authorization']) {
 			return !!(await this._authService.verifyToken(request.headers['authorization']));
 		}
-		throw new UnauthorizedException('There are no authorization headers in the request');
+		throw new UnauthorizedException('there are no authorization headers in the request');
 	}
 }

@@ -56,7 +56,7 @@ export class UsersController {
 	@ApiOperation({ description: 'create new user-account' })
 	@ApiResponse({ status: 201, description: 'create user-account:success', type: ResponseMessageDto })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
-	@ApiBody({ type: [CreateUserDto] })
+	@ApiBody({ type: CreateUserDto })
 	public async create(@Res() res: Response, @Body() createUserData: CreateUserDto): Promise<Response> {
 		const result: ResponseMessageDto = await this._usersService.create(createUserData);
 		return res.status(HttpStatus.CREATED).json(result);
@@ -68,7 +68,7 @@ export class UsersController {
 	@ApiResponse({ status: 201, description: 'update all user-accounts:success', type: ResponseMessageDto })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
 	@ApiResponse({ status: 403, description: 'you have no rights', type: ForbiddenException })
-	@ApiBody({ type: [UpdateAllUsersDto] })
+	@ApiBody({ type: UpdateAllUsersDto })
 	public async updateAll(@Res() res: Response, @Body() updateData: UpdateAllUsersDto): Promise<Response> {
 		const result: ResponseMessageDto = await this._usersService.updateAll(updateData);
 		return res.status(HttpStatus.CREATED).json(result);
@@ -82,7 +82,7 @@ export class UsersController {
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
 	@ApiResponse({ status: 403, description: 'you have no rights', type: ForbiddenException })
 	@ApiResponse({ status: 404, description: 'userId not exist', type: NotFoundException })
-	@ApiBody({ type: [CreateUserDto] })
+	@ApiBody({ type: CreateUserDto })
 	public async updateOne(@Res() res: Response, @Body() updateUserData: UpdateUserDto, @Param('id') userId: string): Promise<Response> {
 		const result: ResponseMessageDto = await this._usersService.updateOne(updateUserData, userId);
 		return res.status(HttpStatus.CREATED).json(result);

@@ -2,8 +2,6 @@ import { Column, Table, DataType, Model, HasMany } from 'sequelize-typescript';
 import * as bcrypt from 'bcrypt';
 import { Post } from '../posts/post.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { UserRoleEnum } from './user.role.enum';
-import { UserStatusEnum } from './user.status.enum';
 
 @Table({ timestamps: false, freezeTableName: true, tableName: 'users' })
 @HasMany(() => Post)
@@ -78,12 +76,11 @@ export class User extends Model {
 
 	@ApiProperty({
 		required: true,
-		type: 'enum',
-		example: 'user',
-		enum: UserRoleEnum
+		type: 'string',
+		example: 'user'
 	})
 	@Column({
-		type: DataType.ENUM,
+		type: DataType.STRING,
 		allowNull: false,
 		values: ['user', 'admin', 'guest'],
 		defaultValue: 'user'
@@ -92,12 +89,11 @@ export class User extends Model {
 
 	@ApiProperty({
 		required: true,
-		type: 'enum',
-		example: 'online',
-		enum: UserStatusEnum
+		type: 'string',
+		example: 'online'
 	})
 	@Column({
-		type: DataType.ENUM,
+		type: DataType.STRING,
 		allowNull: false,
 		values: ['online', 'offline'],
 		defaultValue: 'offline'

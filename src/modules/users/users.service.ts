@@ -24,7 +24,7 @@ export class UsersService {
 		try {
 			return await this._usersRepository.findAll<User>({ attributes: { exclude: ['password'] } });
 		} catch (error) {
-			return { message: error.message, success: false };
+			throw new Error(error);
 		}
 	}
 
@@ -35,7 +35,15 @@ export class UsersService {
 				attributes: { exclude: ['password'] }
 			});
 		} catch (error) {
-			return { message: error.message, success: false };
+			throw new Error(error);
+		}
+	}
+
+	public async findOneByLogin(login: string): Promise<User> {
+		try {
+			return await this._usersRepository.findOne<User>({ where: { login } });
+		} catch (error) {
+			throw new Error(error);
 		}
 	}
 
@@ -46,7 +54,7 @@ export class UsersService {
 				return { message: 'create user-account:success', success: true };
 			});
 		} catch (error) {
-			return { message: error.message, success: false };
+			throw new Error(error);
 		}
 	}
 
@@ -58,18 +66,18 @@ export class UsersService {
 				return { message: 'update all user-accounts:success', success: true };
 			});
 		} catch (error) {
-			return { message: error.message, success: false };
+			throw new Error(error);
 		}
 	}
 
-	public async updateOne(updateUserData: UpdateUserDto, userId: string): Promise<ResponseMessageDto> {
+	public async updateOne(updateUserData: UpdateUserDto, userId: string | number): Promise<ResponseMessageDto> {
 		try {
 			return await this._sequelize.transaction(async (transaction: Transaction) => {
 				await this._usersRepository.update<User>({ ...updateUserData }, { where: { id: userId }, transaction });
 				return { message: 'update user-account:success', success: true };
 			});
 		} catch (error) {
-			return { message: error.message, success: false };
+			throw new Error(error);
 		}
 	}
 
@@ -80,7 +88,7 @@ export class UsersService {
 				return { message: 'delete user-account:success', success: true };
 			});
 		} catch (error) {
-			return { message: error.message, success: false };
+			throw new Error(error);
 		}
 	}
 }

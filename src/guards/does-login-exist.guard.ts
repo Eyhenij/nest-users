@@ -7,9 +7,9 @@ export class DoesLoginExistGuard implements CanActivate {
 
 	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const request = context.switchToHttp().getRequest();
-		const user = await this._authService.checkLoginExist(request.body.login);
+		const user = await this._authService.findLogin(request.body.login);
 		if (user) {
-			throw new ForbiddenException('This login already exist');
+			throw new ForbiddenException('this login already exist');
 		}
 		return true;
 	}
