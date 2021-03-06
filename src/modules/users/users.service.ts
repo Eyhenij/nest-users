@@ -20,7 +20,7 @@ export class UsersService {
 		return !!user;
 	}
 
-	public async findAll(): Promise<User[] | ResponseMessageDto> {
+	public async findAll(): Promise<User[]> {
 		try {
 			return await this._usersRepository.findAll<User>({ attributes: { exclude: ['password'] } });
 		} catch (error) {
@@ -28,7 +28,7 @@ export class UsersService {
 		}
 	}
 
-	public async findOneById(userId: string): Promise<User | ResponseMessageDto> {
+	public async findOneById(userId: string): Promise<User> {
 		try {
 			return await this._usersRepository.findOne<User>({
 				where: { id: userId },

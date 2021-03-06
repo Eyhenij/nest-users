@@ -3,7 +3,8 @@ import {
 	Controller,
 	Delete,
 	ForbiddenException,
-	Get, HttpCode,
+	Get,
+	HttpCode,
 	HttpStatus,
 	NotFoundException,
 	Param,
@@ -36,7 +37,7 @@ export class UsersController {
 	@ApiOperation({ description: 'get all user-accounts' })
 	@ApiResponse({ status: 200, description: 'get array of user-accounts:success', type: [User] })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
-	public async findAll(): Promise<User[] | ResponseMessageDto> {
+	public async findAll(): Promise<User[]> {
 		return await this._usersService.findAll();
 	}
 
@@ -47,7 +48,7 @@ export class UsersController {
 	@ApiResponse({ status: 200, description: 'get one user-account:success', type: User })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
 	@ApiResponse({ status: 404, description: 'userId not exist', type: NotFoundException })
-	public async findOne(@Param('id') userId: string): Promise<User | ResponseMessageDto> {
+	public async findOne(@Param('id') userId: string): Promise<User> {
 		return await this._usersService.findOneById(userId);
 	}
 
@@ -85,10 +86,7 @@ export class UsersController {
 	@ApiResponse({ status: 403, description: 'you have no rights', type: ForbiddenException })
 	@ApiResponse({ status: 404, description: 'userId not exist', type: NotFoundException })
 	@ApiBody({ type: CreateUserDto })
-	public async updateOne(
-		@Body() updateUserData: UpdateUserDto,
-		@Param('id') userId: string
-	): Promise<ResponseMessageDto> {
+	public async updateOne(@Body() updateUserData: UpdateUserDto, @Param('id') userId: string): Promise<ResponseMessageDto> {
 		return await this._usersService.updateOne(updateUserData, userId);
 	}
 

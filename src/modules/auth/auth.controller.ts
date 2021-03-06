@@ -33,7 +33,7 @@ export class AuthController {
 	@ApiResponse({ status: 403, description: 'you have entered incorrect password', type: ForbiddenException })
 	@ApiResponse({ status: 404, description: 'user not found', type: NotFoundException })
 	@ApiBody({ type: AuthDto })
-	public async signIn(@Body() authData: AuthDto): Promise<AuthResponseMessageDto | ResponseMessageDto> {
+	public async signIn(@Body() authData: AuthDto): Promise<AuthResponseMessageDto> {
 		return await this._authService.signIn(authData);
 	}
 

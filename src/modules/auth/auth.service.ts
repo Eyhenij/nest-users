@@ -12,7 +12,7 @@ import { NewPasswordDto } from './dto/new-password.dto';
 export class AuthService {
 	constructor(private readonly _jwtService: JwtService, private readonly _usersService: UsersService) {}
 
-	public async signIn(authData: AuthDto): Promise<AuthResponseMessageDto | ResponseMessageDto> {
+	public async signIn(authData: AuthDto): Promise<AuthResponseMessageDto> {
 		const user = await this.findLogin(authData.login);
 		if (!user) {
 			throw new NotFoundException('user not found');
