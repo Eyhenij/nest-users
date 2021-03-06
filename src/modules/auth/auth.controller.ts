@@ -7,12 +7,11 @@ import {
 	HttpStatus,
 	NotFoundException,
 	Post,
-	Res,
 	UseGuards,
-	UnauthorizedException
+	UnauthorizedException,
+	HttpCode
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Response } from 'express';
 import { AuthResponseMessageDto, ResponseMessageDto } from '../../interfaces/response.dtos';
 import { CreateUserDto } from '../users/dto/createUser.dto';
 import { AuthDto } from './dto/auth.dto';
@@ -28,29 +27,30 @@ export class AuthController {
 	constructor(private readonly _authService: AuthService) {}
 
 	@Post('login')
+	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ description: 'sign in account' })
 	@ApiResponse({ status: 200, description: 'login:success' })
 	@ApiResponse({ status: 403, description: 'you have entered incorrect password', type: ForbiddenException })
 	@ApiResponse({ status: 404, description: 'user not found', type: NotFoundException })
 	@ApiBody({ type: AuthDto })
-	public async signIn(@Res() res: Response, @Body() authData: AuthDto): Promise<Response> {
-		const result: AuthResponseMessageDto | ResponseMessageDto = await this._authService.signIn(authData);
-		return res.status(HttpStatus.OK).json(result);
+	public async signIn(@Body() authData: AuthDto): Promise<AuthResponseMessageDto | ResponseMessageDto> {
+		return await this._authService.signIn(authData);
 	}
 
 	@Post('register')
+	@HttpCode(HttpStatus.CREATED)
 	@UseGuards(DoesLoginExistGuard)
 	@ApiOperation({ description: 'create new account' })
 	@ApiResponse({ status: 201, description: 'register:success' })
 	@ApiResponse({ status: 400, description: 'Bad Request', type: BadRequestException })
 	@ApiResponse({ status: 403, description: 'this login already exist', type: ForbiddenException })
 	@ApiBody({ type: CreateUserDto })
-	async signUp(@Res() res: Response, @Body() user: CreateUserDto): Promise<Response> {
-		const result: ResponseMessageDto = await this._authService.signUp(user);
-		return res.status(HttpStatus.CREATED).json(result);
+	async signUp(@Body() user: CreateUserDto): Promise<ResponseMessageDto> {
+		return await this._authService.signUp(user);
 	}
 
-	@Post('password')
+	@Post('forgot_password')
+	@HttpCode(HttpStatus.CREATED)
 	@UseGuards(AuthTokenGuard)
 	@ApiBearerAuth()
 	@ApiOperation({ description: 'change user password' })
@@ -58,13 +58,7 @@ export class AuthController {
 	@ApiResponse({ status: 400, description: 'Bad Request', type: BadRequestException })
 	@ApiResponse({ status: 401, description: 'invalid authorization headers', type: UnauthorizedException })
 	@ApiBody({ type: NewPasswordDto })
-	async changePassword(
-		@Res() res: Response,
-		@Headers() headers: IncomingHttpHeaders,
-		@Body() newPassword: NewPasswordDto
-	): Promise<Response> {
-		const authHeaders = headers['authorization'];
-		const result: ResponseMessageDto = await this._authService.changePassword(authHeaders, newPassword);
-		return res.status(HttpStatus.CREATED).json(result);
+	async changePassword(@Headers() headers: IncomingHttpHeaders, @Body() newPassword: NewPasswordDto): Promise<ResponseMessageDto> {
+		return await this._authService.changePassword(headers['authorization'], newPassword);
 	}
 }

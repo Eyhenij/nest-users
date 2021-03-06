@@ -19,7 +19,6 @@ export class AuthService {
 		}
 		if (await bcrypt.compare(authData.password, user.password)) {
 			const access_token = await this._jwtService.signAsync({
-				id: user.id,
 				login: user.login,
 				role: user.role,
 				type: 'access'
