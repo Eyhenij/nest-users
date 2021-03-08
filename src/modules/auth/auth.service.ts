@@ -10,7 +10,10 @@ import { NewPasswordDto } from './dto/new-password.dto';
 
 @Injectable()
 export class AuthService {
-	constructor(private readonly _jwtService: JwtService, private readonly _usersService: UsersService) {}
+	constructor(
+		private readonly _jwtService: JwtService,
+		private readonly _usersService: UsersService
+	) {}
 
 	public async signIn(authData: AuthDto): Promise<AuthResponseMessageDto> {
 		const user = await this.findLogin(authData.login);

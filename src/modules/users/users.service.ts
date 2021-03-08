@@ -1,18 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './user.model';
-import { Sequelize } from 'sequelize-typescript';
-import { Transaction } from 'sequelize';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { CreateUserDto } from './dto/createUser.dto';
 import { ResponseMessageDto } from '../../interfaces/response.dtos';
+import { UpdateAllUsersDto } from './dto/updateAllUsersDto';
 
 @Injectable()
 export class UsersService {
 	constructor(
 		@InjectModel(User)
-		private readonly _usersRepository: typeof User,
-		private readonly _sequelize: Sequelize
+		private readonly _usersRepository: typeof User
 	) {}
 
 	public async checkUserExist(userId: string): Promise<boolean> {
@@ -24,7 +22,7 @@ export class UsersService {
 		try {
 			return await this._usersRepository.findAll<User>({ attributes: { exclude: ['password'] } });
 		} catch (error) {
-			throw new Error(error);
+			throw new InternalServerErrorException();
 		}
 	}
 
@@ -35,7 +33,7 @@ export class UsersService {
 				attributes: { exclude: ['password'] }
 			});
 		} catch (error) {
-			throw new Error(error);
+			throw new InternalServerErrorException();
 		}
 	}
 
@@ -43,52 +41,44 @@ export class UsersService {
 		try {
 			return await this._usersRepository.findOne<User>({ where: { login } });
 		} catch (error) {
-			throw new Error(error);
+			throw new InternalServerErrorException('invalid user data');
 		}
 	}
 
 	public async create(userData: CreateUserDto): Promise<ResponseMessageDto> {
 		try {
-			return await this._sequelize.transaction(async () => {
-				await this._usersRepository.create<User>({ ...userData });
-				return { message: 'create user-account:success', success: true };
-			});
+			await this._usersRepository.create<User>({ ...userData });
+			return { message: 'create user-account:success', success: true };
 		} catch (error) {
-			throw new Error(error);
+			throw new BadRequestException('invalid user data');
 		}
 	}
 
-	public async updateAll(newArray): Promise<ResponseMessageDto> {
+	public async updateAll(newArray: UpdateAllUsersDto): Promise<ResponseMessageDto> {
 		try {
-			return await this._sequelize.transaction(async (transaction: Transaction) => {
-				await this._usersRepository.truncate({ cascade: true, transaction });
-				await this._usersRepository.bulkCreate(newArray);
-				return { message: 'update all user-accounts:success', success: true };
-			});
+			await this._usersRepository.truncate({ cascade: true });
+			await this._usersRepository.bulkCreate(newArray.arr);
+			return { message: 'update all user-accounts:success', success: true };
 		} catch (error) {
-			throw new Error(error);
+			throw new BadRequestException('invalid user data');
 		}
 	}
 
 	public async updateOne(updateUserData: UpdateUserDto, userId: string | number): Promise<ResponseMessageDto> {
 		try {
-			return await this._sequelize.transaction(async (transaction: Transaction) => {
-				await this._usersRepository.update<User>({ ...updateUserData }, { where: { id: userId }, transaction });
-				return { message: 'update user-account:success', success: true };
-			});
+			await this._usersRepository.update<User>({ ...updateUserData }, { where: { id: userId } });
+			return { message: 'update user-account:success', success: true };
 		} catch (error) {
-			throw new Error(error);
+			throw new BadRequestException('invalid user data');
 		}
 	}
 
 	public async remove(userId: string): Promise<ResponseMessageDto> {
 		try {
-			return await this._sequelize.transaction(async (transaction: Transaction) => {
-				await this._usersRepository.destroy<User>({ where: { id: userId }, transaction });
-				return { message: 'delete user-account:success', success: true };
-			});
+			await this._usersRepository.destroy<User>({ where: { id: userId } });
+			return { message: 'delete user-account:success', success: true };
 		} catch (error) {
-			throw new Error(error);
+			throw new InternalServerErrorException();
 		}
 	}
 }

@@ -26,6 +26,7 @@ module.exports = {
         "require-await": "warn",
         "space-in-parens": ["warn", "never"],
         "comma-spacing": ["warn", {"before": false, "after": true}],
-        "comma-style": ["warn", "last"]
+        "comma-style": ["warn", "last"],
+        "eslint-disable-line": "off"
     }
 };

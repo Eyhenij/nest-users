@@ -34,33 +34,45 @@ describe('UsersController', () => {
 		expect(usersController).toBeDefined();
 	});
 
-	test('findAll-method should return an array of users', async () => {
-		jest.spyOn(usersService, 'findAll').mockImplementation(() => Promise.resolve([testUser] as User[]));
-		expect(await usersController.findAll()).toEqual([testUser]);
+	describe('findAll-method', () => {
+		test('should return an array of users', async () => {
+			jest.spyOn(usersService, 'findAll').mockImplementation(() => Promise.resolve([testUser] as User[]));
+			expect(await usersController.findAll()).toEqual([testUser]);
+		});
 	});
 
-	test('findOne-method should return one user', async () => {
-		jest.spyOn(usersService, 'findOneById').mockImplementation(() => Promise.resolve(testUser as User));
-		expect(await usersController.findOne('1')).toEqual(testUser);
+	describe('findOne-method', () => {
+		test('should return one user', async () => {
+			jest.spyOn(usersService, 'findOneById').mockImplementation(() => Promise.resolve(testUser as User));
+			expect(await usersController.findOne('1')).toEqual(testUser);
+		});
 	});
 
-	test('create-method should return response-message', async () => {
-		jest.spyOn(usersService, 'create').mockImplementation(() => Promise.resolve(responseMessage));
-		expect(await usersController.create(testUser as CreateUserDto)).toEqual(responseMessage);
+	describe('create-method', () => {
+		test('should return response-message', async () => {
+			jest.spyOn(usersService, 'create').mockImplementation(() => Promise.resolve(responseMessage));
+			expect(await usersController.create(testUser as CreateUserDto)).toEqual(responseMessage);
+		});
 	});
 
-	test('updateAll-method should return response-message', async () => {
-		jest.spyOn(usersService, 'updateAll').mockImplementation(() => Promise.resolve(responseMessage));
-		expect(await usersController.updateAll((testUser as unknown) as UpdateAllUsersDto)).toEqual(responseMessage);
+	describe('updateAll-method', () => {
+		test('should return response-message', async () => {
+			jest.spyOn(usersService, 'updateAll').mockImplementation(() => Promise.resolve(responseMessage));
+			expect(await usersController.updateAll((testUser as unknown) as UpdateAllUsersDto)).toEqual(responseMessage);
+		});
 	});
 
-	test('updateOne-method should return response-message', async () => {
-		jest.spyOn(usersService, 'updateOne').mockImplementation(() => Promise.resolve(responseMessage));
-		expect(await usersController.updateOne(testUser as UpdateUserDto, '1')).toEqual(responseMessage);
+	describe('updateOne-method', () => {
+		test('should return response-message', async () => {
+			jest.spyOn(usersService, 'updateOne').mockImplementation(() => Promise.resolve(responseMessage));
+			expect(await usersController.updateOne(testUser as UpdateUserDto, '1')).toEqual(responseMessage);
+		});
 	});
 
-	test('remove-method should return response-message', async () => {
-		jest.spyOn(usersService, 'remove').mockImplementation(() => Promise.resolve(responseMessage));
-		expect(await usersController.remove('1')).toEqual(responseMessage);
+	describe('remove-method', () => {
+		test('remove-method should return response-message', async () => {
+			jest.spyOn(usersService, 'remove').mockImplementation(() => Promise.resolve(responseMessage));
+			expect(await usersController.remove('1')).toEqual(responseMessage);
+		});
 	});
 });
