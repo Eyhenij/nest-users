@@ -48,12 +48,17 @@ describe('UsersService', () => {
 
 		test('should throw InternalServerErrorException', () => {
 			jest.spyOn(userRepository, 'findAll').mockImplementation(() => Promise.reject(new Error()));
-			expect(async () => await usersService.findAll()).rejects.toThrow(InternalServerErrorException);
+			expect(async () => await usersService.findAll())
+				.rejects
+				.toThrow(InternalServerErrorException);
 		});
 
 		test('should not throw NotFoundException', () => {
 			jest.spyOn(userRepository, 'findAll').mockImplementation(() => Promise.reject(new Error()));
-			expect(async () => await usersService.findAll()).rejects.not.toThrow(NotFoundException);
+			expect(async () => await usersService.findAll())
+				.rejects
+				.not
+				.toThrow(NotFoundException);
 		});
 	});
 
@@ -65,12 +70,17 @@ describe('UsersService', () => {
 
 		test('should throw InternalServerErrorException', () => {
 			jest.spyOn(userRepository, 'findOne').mockImplementation(() => Promise.reject(new Error()));
-			expect(async () => await usersService.findOneById('1')).rejects.toThrow(InternalServerErrorException);
+			expect(async () => await usersService.findOneById('1'))
+				.rejects
+				.toThrow(InternalServerErrorException);
 		});
 
 		test('should not throw NotFoundException', () => {
 			jest.spyOn(userRepository, 'findOne').mockImplementation(() => Promise.reject(new Error()));
-			expect(async () => await usersService.findOneById('1')).rejects.not.toThrow(NotFoundException);
+			expect(async () => await usersService.findOneById('1'))
+				.rejects
+				.not
+				.toThrow(NotFoundException);
 		});
 	});
 
@@ -82,32 +92,40 @@ describe('UsersService', () => {
 
 		test('should throw InternalServerErrorException', () => {
 			jest.spyOn(userRepository, 'findOne').mockImplementation(() => Promise.reject(new Error()));
-			expect(async () => await usersService.findOneByLogin('@test')).rejects.toThrow(InternalServerErrorException);
+			expect(async () => await usersService.findOneByLogin('@test'))
+				.rejects
+				.toThrow(InternalServerErrorException);
 		});
 
 		test('should not throw NotFoundException', () => {
 			jest.spyOn(userRepository, 'findOne').mockImplementation(() => Promise.reject(new Error()));
-			expect(async () => await usersService.findOneByLogin('@test')).rejects.not.toThrow(NotFoundException);
+			expect(async () => await usersService.findOneByLogin('@test'))
+				.rejects
+				.not
+				.toThrow(NotFoundException);
 		});
 	});
 
 	describe('create-method', () => {
 		test('should return response-message', async () => {
 			jest.spyOn(userRepository, 'create').mockReturnValue(testUser);
-			expect(await usersService.create(testUser as CreateUserDto)).toEqual({
-				message: 'create user-account:success',
-				success: true
-			});
+			expect(await usersService.create(testUser as CreateUserDto))
+				.toEqual({ message: 'create user-account:success', success: true });
 		});
 
 		test('should throw BadRequestException', () => {
 			jest.spyOn(userRepository, 'create').mockImplementation(() => Promise.reject(new Error()));
-			expect(async () => await usersService.create(testUser as CreateUserDto)).rejects.toThrow(BadRequestException);
+			expect(async () => await usersService.create(testUser as CreateUserDto))
+				.rejects
+				.toThrow(BadRequestException);
 		});
 
 		test('should not throw NotFoundException', () => {
 			jest.spyOn(userRepository, 'create').mockImplementation(() => Promise.reject(new Error()));
-			expect(async () => await usersService.create(testUser as CreateUserDto)).rejects.not.toThrow(NotFoundException);
+			expect(async () => await usersService.create(testUser as CreateUserDto))
+				.rejects
+				.not
+				.toThrow(NotFoundException);
 		});
 	});
 
@@ -115,64 +133,69 @@ describe('UsersService', () => {
 		test('should return response-message', async () => {
 			jest.spyOn(userRepository, 'truncate').mockReturnValue(true);
 			jest.spyOn(userRepository, 'bulkCreate').mockReturnValue([testUser]);
-			expect(await usersService.updateAll(([testUser] as unknown) as UpdateAllUsersDto)).toEqual({
-				message: 'update all user-accounts:success',
-				success: true
-			});
+			expect(await usersService.updateAll(([testUser] as unknown) as UpdateAllUsersDto))
+				.toEqual({ message: 'update all user-accounts:success', success: true });
 		});
 
 		test('should throw BadRequestException', () => {
 			jest.spyOn(userRepository, 'bulkCreate').mockImplementation(() => Promise.reject(new Error()));
-			expect(async () => await usersService.updateAll(([testUser] as unknown) as UpdateAllUsersDto)).rejects.toThrow(
-				BadRequestException
-			);
+			expect(async () => await usersService.updateAll(([testUser] as unknown) as UpdateAllUsersDto))
+				.rejects
+				.toThrow(BadRequestException);
 		});
 
 		test('should not throw NotFoundException', () => {
 			jest.spyOn(userRepository, 'bulkCreate').mockImplementation(() => Promise.reject(new Error()));
-			expect(async () => await usersService.updateAll(([testUser] as unknown) as UpdateAllUsersDto)).rejects.not.toThrow(
-				NotFoundException
-			);
+			expect(async () => await usersService.updateAll(([testUser] as unknown) as UpdateAllUsersDto))
+				.rejects
+				.not
+				.toThrow(NotFoundException);
 		});
 	});
 
 	describe('updateOne-method', () => {
 		test('should return response-message', async () => {
 			jest.spyOn(userRepository, 'update').mockReturnValue(testUser);
-			expect(await usersService.updateOne(testUser, '1')).toEqual({
-				message: 'update user-account:success',
-				success: true
-			});
+			expect(await usersService.updateOne(testUser, '1'))
+				.toEqual({ message: 'update user-account:success', success: true });
 		});
 
 		test('should throw BadRequestException', () => {
 			jest.spyOn(userRepository, 'update').mockImplementation(() => Promise.reject(new Error()));
-			expect(async () => await usersService.updateOne(testUser, '1')).rejects.toThrow(BadRequestException);
+			expect(async () => await usersService.updateOne(testUser, '1'))
+				.rejects
+				.toThrow(BadRequestException);
 		});
 
 		test('should not throw NotFoundException', () => {
 			jest.spyOn(userRepository, 'update').mockImplementation(() => Promise.reject(new Error()));
-			expect(async () => await usersService.updateOne(testUser, '1')).rejects.not.toThrow(NotFoundException);
+			expect(async () => await usersService.updateOne(testUser, '1'))
+				.rejects
+				.not
+				.toThrow(NotFoundException);
 		});
 	});
 
 	describe('remove-method', () => {
 		test('should return response-message', async () => {
 			jest.spyOn(userRepository, 'destroy').mockReturnValue(testUser);
-			expect(await usersService.remove('1')).toEqual({
-				message: 'delete user-account:success',
-				success: true
-			});
+			expect(await usersService.remove('1'))
+				.toEqual({ message: 'delete user-account:success', success: true });
 		});
 
 		test('should throw InternalServerErrorException', () => {
 			jest.spyOn(userRepository, 'destroy').mockImplementation(() => Promise.reject(new Error()));
-			expect(async () => await usersService.remove('1')).rejects.toThrow(InternalServerErrorException);
+			expect(async () => await usersService.remove('1'))
+				.rejects
+				.toThrow(InternalServerErrorException);
 		});
 
 		test('should not throw NotFoundException', () => {
 			jest.spyOn(userRepository, 'destroy').mockImplementation(() => Promise.reject(new Error()));
-			expect(async () => await usersService.remove('1')).rejects.not.toThrow(NotFoundException);
+			expect(async () => await usersService.remove('1'))
+				.rejects
+				.not
+				.toThrow(NotFoundException);
 		});
 	});
 
