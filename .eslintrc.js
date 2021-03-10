@@ -7,8 +7,7 @@ module.exports = {
     plugins: ["@typescript-eslint/eslint-plugin"],
     extends: [
         "plugin:@typescript-eslint/recommended",
-        "prettier/@typescript-eslint",
-        "plugin:prettier/recommended"
+        "prettier/@typescript-eslint"
     ],
     root: true,
     env: {
@@ -27,6 +26,7 @@ module.exports = {
         "space-in-parens": ["warn", "never"],
         "comma-spacing": ["warn", {"before": false, "after": true}],
         "comma-style": ["warn", "last"],
-        "eslint-disable-line": "off"
+        "eslint-disable-line": "off",
+        "eslint-disable-next-line": "off"
     }
 };

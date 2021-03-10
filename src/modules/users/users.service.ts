@@ -41,7 +41,7 @@ export class UsersService {
 		try {
 			return await this._usersRepository.findOne<User>({ where: { login } });
 		} catch (error) {
-			throw new InternalServerErrorException('invalid user data');
+			throw new InternalServerErrorException('login not found');
 		}
 	}
 
