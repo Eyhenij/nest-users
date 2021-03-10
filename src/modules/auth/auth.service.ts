@@ -10,17 +10,20 @@ import { NewPasswordDto } from './dto/new-password.dto';
 
 @Injectable()
 export class AuthService {
-	constructor(private readonly _jwtService: JwtService, private readonly _usersService: UsersService) {}
+	constructor(
+		private readonly _jwtService: JwtService,
+		private readonly _usersService: UsersService
+	) {}
 
 	public async signIn(authData: AuthDto): Promise<AuthResponseMessageDto> {
 		const user = await this.findLogin(authData.login);
 		if (!user) {
 			throw new NotFoundException('user not found');
 		}
-		if (await bcrypt.compare(authData.password, user.password)) {
+		if (await this.comparePasswords(authData.password, user.password)) {
 			const access_token = await this._jwtService.signAsync({
-				login: user.login,
-				role: user.role,
+				login: user['dataValues'].login,
+				role: user['dataValues'].role,
 				type: 'access'
 			});
 			const { password, ...cleanUser } = user['dataValues'];
@@ -42,6 +45,10 @@ export class AuthService {
 		return await this._usersService.findOneByLogin(login);
 	}
 
+	public async comparePasswords(passwordFromRequest: string, passwordFromDB: string): Promise<boolean> {
+		return await bcrypt.compare(passwordFromRequest, passwordFromDB)
+	}
+
 	public async verifyToken(authHeaders: string): Promise<User> {
 		try {
 			const [strategy, token] = authHeaders.split(' ');
@@ -49,6 +56,7 @@ export class AuthService {
 			if (result) {
 				return await this.findLogin(result.login);
 			}
+			throw new Error();
 		} catch (error) {
 			throw new UnauthorizedException('invalid authorization headers');
 		}

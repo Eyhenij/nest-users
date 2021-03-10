@@ -13,9 +13,9 @@ describe('AuthController', () => {
 	let authController: AuthController;
 	let authService: AuthService;
 
-	const testUserData: AuthDto = { login: '@test', password: 'someTestPasswordString' };
-	const responseMessage: ResponseMessageDto = { message: 'there is some message from authService', success: true };
-	const headers: IncomingHttpHeaders = { authorization: 'some test authorization header' };
+	const testUserData: AuthDto = { login: '@test', password: 'testPassword' };
+	const responseMessage: ResponseMessageDto = { message: 'test-message', success: true };
+	const headers: IncomingHttpHeaders = { authorization: 'test authorization header' };
 
 	beforeEach(async () => {
 		jest.resetAllMocks();
@@ -29,24 +29,29 @@ describe('AuthController', () => {
 		authService = moduleRef.get<AuthService>(AuthService);
 	});
 
-	test('should be defined', () => {
-		expect(AuthController).toBeDefined();
+	it('should be defined', () => {
+		expect(authController).toBeDefined();
 	});
 
-	test('singIn-method should return auth-response-message', async () => {
-		jest.spyOn(authService, 'signIn').mockImplementation(() => {
-			return Promise.resolve((responseMessage as unknown) as AuthResponseMessageDto);
+	describe('signIn', () => {
+		it('should return response-message', async () => {
+			jest.spyOn(authService, 'signIn')
+				.mockReturnValueOnce(Promise.resolve((responseMessage as unknown) as AuthResponseMessageDto));
+			expect(await authController.signIn(testUserData)).toEqual(responseMessage);
 		});
-		expect(await authController.signIn(testUserData)).toEqual(responseMessage);
 	});
 
-	test('singUp-method should return response-message', async () => {
-		jest.spyOn(authService, 'signUp').mockImplementation(() => Promise.resolve(responseMessage));
-		expect(await authController.signUp(testUserData as CreateUserDto)).toEqual(responseMessage);
+	describe('singUp', () => {
+		it('should return response-message', async () => {
+			jest.spyOn(authService, 'signUp').mockReturnValueOnce(Promise.resolve(responseMessage));
+			expect(await authController.signUp(testUserData as CreateUserDto)).toEqual(responseMessage);
+		});
 	});
 
-	test('changePassword-method should return response-message', async () => {
-		jest.spyOn(authService, 'changePassword').mockImplementation(() => Promise.resolve(responseMessage));
-		expect(await authController.changePassword(headers, testUserData as NewPasswordDto)).toEqual(responseMessage);
+	describe('changePassword', () => {
+		it('should return response-message', async () => {
+			jest.spyOn(authService, 'changePassword').mockReturnValueOnce(Promise.resolve(responseMessage));
+			expect(await authController.changePassword(headers, testUserData as NewPasswordDto)).toEqual(responseMessage);
+		});
 	});
 });
