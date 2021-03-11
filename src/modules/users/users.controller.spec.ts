@@ -1,4 +1,4 @@
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { AuthService } from '../auth/auth.service';
@@ -21,7 +21,7 @@ describe('UsersController', () => {
 	beforeEach(async () => {
 		jest.resetAllMocks();
 
-		const moduleRef = await Test.createTestingModule({
+		const moduleRef: TestingModule = await Test.createTestingModule({
 			providers: [UsersService, AuthService],
 			controllers: [UsersController]
 		}).compile();

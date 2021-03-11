@@ -1,4 +1,4 @@
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { ForbiddenException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
@@ -22,7 +22,7 @@ describe('AuthService', () => {
 
 	beforeEach(async () => {
 		jest.resetAllMocks();
-		const moduleRef = await Test.createTestingModule({
+		const moduleRef: TestingModule = await Test.createTestingModule({
 			providers: [AuthService, UsersService, JwtService]
 		}).compile();
 
@@ -31,7 +31,7 @@ describe('AuthService', () => {
 		jwtService = moduleRef.get<JwtService>(JwtService);
 	});
 
-	test('should be defined', () => {
+	it('should be defined', () => {
 		expect(authService).toBeDefined();
 	});
 
@@ -40,7 +40,7 @@ describe('AuthService', () => {
 			describe('NotFoundException', () => {
 				beforeEach(() => {
 					jest.spyOn(authService, 'findLogin').mockReturnValueOnce(Promise.resolve(null));
-				})
+				});
 
 				it('should throw NotFoundException', async () => {
 					await expect(authService.signIn(testUser)).rejects.toThrow(NotFoundException);
@@ -69,17 +69,18 @@ describe('AuthService', () => {
 
 		describe('positive result', () => {
 			beforeEach(() => {
-				jest.spyOn(authService, 'findLogin').mockReturnValueOnce(Promise.resolve(
-					{ 'dataValues': { login: '@test', password: 'testPassword', role: 'user' } } as unknown as User
-				));
+				jest.spyOn(authService, 'findLogin').mockReturnValueOnce(
+					Promise.resolve(({ dataValues: { login: '@test', password: 'testPassword', role: 'user' } } as unknown) as User)
+				);
 				jest.spyOn(authService, 'comparePasswords').mockReturnValueOnce(Promise.resolve(true));
 				jest.spyOn(jwtService, 'signAsync').mockReturnValueOnce(Promise.resolve('test-token-string'));
 			});
 
 			it('should return AuthResponseMessageDto', async () => {
-				expect(await authService.signIn(testUser)).toEqual(
-					{ 'profile': { login: '@test', role: 'user' }, 'token': 'Bearer test-token-string' }
-				);
+				expect(await authService.signIn(testUser)).toEqual({
+					profile: { login: '@test', role: 'user' },
+					token: 'Bearer test-token-string'
+				});
 			});
 
 			it('should call findLogin with login-param', async () => {
@@ -96,20 +97,20 @@ describe('AuthService', () => {
 				await authService.signIn(testUser);
 				expect(jwtService.signAsync).toBeCalled();
 			});
-		})
+		});
 	});
 
 	describe('signUp', () => {
 		beforeEach(() => {
 			jest.spyOn(usersService, 'create').mockReturnValueOnce(Promise.resolve(responseMessage));
-		})
+		});
 
 		it('should return response-message', async () => {
 			expect(await authService.signUp(testUser as CreateUserDto)).toEqual(responseMessage);
 		});
 
 		it('should  call usersService.create with testUser-param', async () => {
-			await authService.signUp(testUser as CreateUserDto)
+			await authService.signUp(testUser as CreateUserDto);
 			expect(usersService.create).toBeCalledWith(testUser);
 		});
 	});
@@ -155,13 +156,13 @@ describe('AuthService', () => {
 			jest.spyOn(jwtService, 'verify').mockReturnValueOnce(Promise.resolve(testUser));
 			jest.spyOn(authService, 'findLogin').mockReturnValueOnce(Promise.resolve(testUser as User));
 			expect(await authService.verifyToken('test-auth-header')).toEqual(testUser);
-		})
+		});
 
 		describe('negative result', () => {
 			it('should be undefined', async () => {
 				jest.spyOn(jwtService, 'verify').mockReturnValueOnce(Promise.resolve(null));
 				await expect(authService.verifyToken('test-auth-header')).rejects.toThrow(UnauthorizedException);
-			})
+			});
 
 			describe('UnauthorizedException', () => {
 				beforeEach(() => {

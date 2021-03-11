@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './user.model';
 import { UpdateUserDto } from './dto/updateUser.dto';
@@ -41,7 +41,7 @@ export class UsersService {
 		try {
 			return await this._usersRepository.findOne<User>({ where: { login } });
 		} catch (error) {
-			throw new InternalServerErrorException('login not found');
+			throw new NotFoundException('login not found');
 		}
 	}
 
@@ -60,7 +60,7 @@ export class UsersService {
 			await this._usersRepository.bulkCreate(newArray.arr);
 			return { message: 'update all user-accounts:success', success: true };
 		} catch (error) {
-			throw new BadRequestException('invalid user data');
+			throw new BadRequestException(error.message);
 		}
 	}
 
@@ -69,7 +69,7 @@ export class UsersService {
 			await this._usersRepository.update<User>({ ...updateUserData }, { where: { id: userId } });
 			return { message: 'update user-account:success', success: true };
 		} catch (error) {
-			throw new BadRequestException('invalid user data');
+			throw new BadRequestException(error.message);
 		}
 	}
 
@@ -78,7 +78,7 @@ export class UsersService {
 			await this._usersRepository.destroy<User>({ where: { id: userId } });
 			return { message: 'delete user-account:success', success: true };
 		} catch (error) {
-			throw new InternalServerErrorException();
+			throw new InternalServerErrorException(error.message);
 		}
 	}
 }
