@@ -1,4 +1,4 @@
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { AuthResponseMessageDto, ResponseMessageDto } from '../../interfaces/response.dtos';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -20,7 +20,7 @@ describe('AuthController', () => {
 	beforeEach(async () => {
 		jest.resetAllMocks();
 
-		const moduleRef = await Test.createTestingModule({
+		const moduleRef: TestingModule = await Test.createTestingModule({
 			providers: [AuthService],
 			controllers: [AuthController]
 		}).compile();
@@ -35,8 +35,7 @@ describe('AuthController', () => {
 
 	describe('signIn', () => {
 		it('should return response-message', async () => {
-			jest.spyOn(authService, 'signIn')
-				.mockReturnValueOnce(Promise.resolve((responseMessage as unknown) as AuthResponseMessageDto));
+			jest.spyOn(authService, 'signIn').mockReturnValueOnce(Promise.resolve((responseMessage as unknown) as AuthResponseMessageDto));
 			expect(await authController.signIn(testUserData)).toEqual(responseMessage);
 		});
 	});

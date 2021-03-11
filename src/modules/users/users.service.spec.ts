@@ -1,4 +1,4 @@
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
 import { User } from './user.model';
 import { getModelToken } from '@nestjs/sequelize';
@@ -23,7 +23,7 @@ describe('UsersService', () => {
 
 	beforeEach(async () => {
 		jest.resetAllMocks();
-		const moduleRef = await Test.createTestingModule({
+		const moduleRef: TestingModule = await Test.createTestingModule({
 			providers: [
 				UsersService,
 				{
@@ -83,20 +83,19 @@ describe('UsersService', () => {
 
 		it('should throw InternalServerErrorException', async () => {
 			jest.spyOn(userRepository, 'findOne').mockReturnValueOnce(Promise.reject(new Error()));
-			await expect(usersService.findOneByLogin('@test')).rejects.toThrow(InternalServerErrorException);
+			await expect(usersService.findOneByLogin('@test')).rejects.toThrow(NotFoundException);
 		});
 
 		it('should not throw NotFoundException', async () => {
 			jest.spyOn(userRepository, 'findOne').mockReturnValueOnce(Promise.reject(new Error()));
-			await expect(usersService.findOneByLogin('@test')).rejects.not.toThrow(NotFoundException);
+			await expect(usersService.findOneByLogin('@test')).rejects.not.toThrow(InternalServerErrorException);
 		});
 	});
 
 	describe('create', () => {
 		it('should return response-message', async () => {
 			jest.spyOn(userRepository, 'create').mockReturnValueOnce(testUser);
-			expect(await usersService.create(testUser as CreateUserDto))
-				.toEqual({ message: 'create user-account:success', success: true });
+			expect(await usersService.create(testUser as CreateUserDto)).toEqual({ message: 'create user-account:success', success: true });
 		});
 
 		it('should throw BadRequestException', async () => {
@@ -114,8 +113,10 @@ describe('UsersService', () => {
 		it('should return response-message', async () => {
 			jest.spyOn(userRepository, 'truncate').mockReturnValueOnce(true);
 			jest.spyOn(userRepository, 'bulkCreate').mockReturnValueOnce([testUser]);
-			expect(await usersService.updateAll(([testUser] as unknown) as UpdateAllUsersDto))
-				.toEqual({ message: 'update all user-accounts:success', success: true });
+			expect(await usersService.updateAll(([testUser] as unknown) as UpdateAllUsersDto)).toEqual({
+				message: 'update all user-accounts:success',
+				success: true
+			});
 		});
 
 		it('should throw BadRequestException', async () => {
@@ -132,8 +133,7 @@ describe('UsersService', () => {
 	describe('updateOne', () => {
 		it('should return response-message', async () => {
 			jest.spyOn(userRepository, 'update').mockReturnValueOnce(testUser);
-			expect(await usersService.updateOne(testUser, '1'))
-				.toEqual({ message: 'update user-account:success', success: true });
+			expect(await usersService.updateOne(testUser, '1')).toEqual({ message: 'update user-account:success', success: true });
 		});
 
 		it('should throw BadRequestException', async () => {
@@ -150,8 +150,7 @@ describe('UsersService', () => {
 	describe('remove', () => {
 		it('should return response-message', async () => {
 			jest.spyOn(userRepository, 'destroy').mockReturnValueOnce(testUser);
-			expect(await usersService.remove('1'))
-				.toEqual({ message: 'delete user-account:success', success: true });
+			expect(await usersService.remove('1')).toEqual({ message: 'delete user-account:success', success: true });
 		});
 
 		it('should throw InternalServerErrorException', async () => {
