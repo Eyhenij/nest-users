@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthResponseMessageDto, ResponseMessageDto } from '../../interfaces/response.dtos';
+import { AuthResponseMessageDto, ResponseMessageDto } from '../../common/response.dtos';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';

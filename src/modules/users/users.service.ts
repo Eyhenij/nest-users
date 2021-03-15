@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { User } from './user.model';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { CreateUserDto } from './dto/createUser.dto';
-import { ResponseMessageDto } from '../../interfaces/response.dtos';
+import { ResponseMessageDto } from '../../common/response.dtos';
 import { UpdateAllUsersDto } from './dto/updateAllUsersDto';
 
 @Injectable()
@@ -13,8 +13,8 @@ export class UsersService {
 		private readonly _usersRepository: typeof User
 	) {}
 
-	public async checkUserExist(userId: string): Promise<boolean> {
-		const user = await this._usersRepository.findOne<User>({ where: { id: userId } });
+	public async checkUserExist(userUUID: string): Promise<boolean> {
+		const user = await this._usersRepository.findOne<User>({ where: { userUUID } });
 		return !!user;
 	}
 
@@ -22,26 +22,30 @@ export class UsersService {
 		try {
 			return await this._usersRepository.findAll<User>({ attributes: { exclude: ['password'] } });
 		} catch (error) {
-			throw new InternalServerErrorException();
+			throw new InternalServerErrorException(error.message);
 		}
 	}
 
-	public async findOneById(userId: string): Promise<User> {
+	public async findOneById(userUUID: string): Promise<User> {
 		try {
 			return await this._usersRepository.findOne<User>({
-				where: { id: userId },
+				where: { userUUID },
 				attributes: { exclude: ['password'] }
+				// include: [{ model: Post }]
 			});
 		} catch (error) {
-			throw new InternalServerErrorException();
+			throw new InternalServerErrorException(error.message);
 		}
 	}
 
 	public async findOneByLogin(login: string): Promise<User> {
 		try {
-			return await this._usersRepository.findOne<User>({ where: { login } });
+			return await this._usersRepository.findOne<User>({
+				where: { login }
+				// include: [{ model: Post }]
+			});
 		} catch (error) {
-			throw new NotFoundException('login not found');
+			throw new NotFoundException(error.message);
 		}
 	}
 
@@ -50,13 +54,14 @@ export class UsersService {
 			await this._usersRepository.create<User>({ ...userData });
 			return { message: 'create user-account:success', success: true };
 		} catch (error) {
-			throw new BadRequestException('invalid user data');
+			throw new BadRequestException(error.message);
 		}
 	}
 
 	public async updateAll(newArray: UpdateAllUsersDto): Promise<ResponseMessageDto> {
 		try {
-			await this._usersRepository.truncate({ cascade: true });
+			// await this._usersRepository.truncate({ cascade: true });
+			await this._usersRepository.destroy({ where: {}, cascade: true });
 			await this._usersRepository.bulkCreate(newArray.arr);
 			return { message: 'update all user-accounts:success', success: true };
 		} catch (error) {
@@ -64,18 +69,18 @@ export class UsersService {
 		}
 	}
 
-	public async updateOne(updateUserData: UpdateUserDto, userId: string | number): Promise<ResponseMessageDto> {
+	public async updateOne(updateUserData: UpdateUserDto, userUUID: string): Promise<ResponseMessageDto> {
 		try {
-			await this._usersRepository.update<User>({ ...updateUserData }, { where: { id: userId } });
+			await this._usersRepository.update<User>({ ...updateUserData }, { where: { userUUID } });
 			return { message: 'update user-account:success', success: true };
 		} catch (error) {
 			throw new BadRequestException(error.message);
 		}
 	}
 
-	public async remove(userId: string): Promise<ResponseMessageDto> {
+	public async remove(userUUID: string): Promise<ResponseMessageDto> {
 		try {
-			await this._usersRepository.destroy<User>({ where: { id: userId } });
+			await this._usersRepository.destroy<User>({ where: { userUUID } });
 			return { message: 'delete user-account:success', success: true };
 		} catch (error) {
 			throw new InternalServerErrorException(error.message);

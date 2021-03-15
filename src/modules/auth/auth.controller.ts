@@ -12,7 +12,7 @@ import {
 	HttpCode
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthResponseMessageDto, ResponseMessageDto } from '../../interfaces/response.dtos';
+import { AuthResponseMessageDto, ResponseMessageDto } from '../../common/response.dtos';
 import { CreateUserDto } from '../users/dto/createUser.dto';
 import { AuthDto } from './dto/auth.dto';
 import { DoesLoginExistGuard } from '../../guards/does-login-exist.guard';

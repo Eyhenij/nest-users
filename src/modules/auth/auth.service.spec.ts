@@ -6,7 +6,7 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthDto } from './dto/auth.dto';
 import { User } from '../users/user.model';
 import { CreateUserDto } from '../users/dto/createUser.dto';
-import { ResponseMessageDto } from '../../interfaces/response.dtos';
+import { ResponseMessageDto } from '../../common/response.dtos';
 import * as bcrypt from 'bcrypt';
 
 jest.mock('../users/users.service');

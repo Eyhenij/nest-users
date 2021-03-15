@@ -22,7 +22,7 @@ describe('DoesLoginExistGuard', () => {
 		mockExecutionContext = createMock<ExecutionContext>();
 	});
 
-	test('should be defined', () => {
+	it('should be defined', () => {
 		expect(roleGuard).toBeDefined();
 	});
 

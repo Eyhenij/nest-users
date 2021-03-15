@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { User } from '../users/user.model';
-import { AuthResponseMessageDto, ResponseMessageDto } from '../../interfaces/response.dtos';
+import { AuthResponseMessageDto, ResponseMessageDto } from '../../common/response.dtos';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from '../users/dto/createUser.dto';
 import { AuthDto } from './dto/auth.dto';
