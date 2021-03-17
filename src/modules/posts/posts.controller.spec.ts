@@ -35,21 +35,21 @@ describe('PostsController', () => {
 	describe('findAll', () => {
 		it('should return an array of users', async () => {
 			jest.spyOn(postsService, 'findAll').mockReturnValueOnce(Promise.resolve([testPost] as Post[]));
-			expect(await postsController.findAll({ userUUID: '1' })).toEqual([testPost]);
+			expect(await postsController.findAll('1')).toEqual([testPost]);
 		});
 	});
 
 	describe('findOne', () => {
 		it('should return one user', async () => {
 			jest.spyOn(postsService, 'findOneById').mockReturnValueOnce(Promise.resolve(testPost as Post));
-			expect(await postsController.findOne({ userUUID: '1' }, '1')).toEqual(testPost);
+			expect(await postsController.findOne('1', '1')).toEqual(testPost);
 		});
 	});
 
 	describe('create', () => {
-		it('should return response-message', async () => {
-			jest.spyOn(postsService, 'create').mockReturnValueOnce(Promise.resolve(responseMessage));
-			expect(await postsController.create(testPost as CreatePostDto)).toEqual(responseMessage);
+		it('should return new post', async () => {
+			jest.spyOn(postsService, 'create').mockReturnValueOnce(Promise.resolve(testPost as Post));
+			expect(await postsController.create(testPost as CreatePostDto)).toEqual(testPost);
 		});
 	});
 
@@ -61,9 +61,47 @@ describe('PostsController', () => {
 	});
 
 	describe('remove', () => {
-		it('remove-method should return response-message', async () => {
+		it('should return response-message', async () => {
 			jest.spyOn(postsService, 'remove').mockReturnValueOnce(Promise.resolve(responseMessage));
-			expect(await postsController.remove({ userUUID: '1' }, '1')).toEqual(responseMessage);
+			expect(await postsController.remove('1')).toEqual(responseMessage);
+		});
+	});
+
+	describe('makeLike', () => {
+		beforeEach(() => {
+			jest.spyOn(postsService, 'makeLike').mockReturnValueOnce(Promise.resolve(responseMessage));
+		});
+
+		it('should return response-message', async () => {
+			expect(await postsController.makeLike('1', true)).toEqual(responseMessage);
+		});
+
+		it('should return response-message', async () => {
+			expect(await postsController.makeLike('1', false)).toEqual(responseMessage);
+		});
+
+		it('should call postsService.makeLike', async () => {
+			await postsController.makeLike('1', false);
+			expect(postsService.makeLike).toBeCalledWith(false, '1');
+		});
+	});
+
+	describe('makeDisLike', () => {
+		beforeEach(() => {
+			jest.spyOn(postsService, 'makeDisLike').mockReturnValueOnce(Promise.resolve(responseMessage));
+		});
+
+		it('should return response-message', async () => {
+			expect(await postsController.makeDisLike('1', true)).toEqual(responseMessage);
+		});
+
+		it('should return response-message', async () => {
+			expect(await postsController.makeDisLike('1', false)).toEqual(responseMessage);
+		});
+
+		it('should call postsService.makeDisLike', async () => {
+			await postsController.makeDisLike('1', false);
+			expect(postsService.makeDisLike).toBeCalledWith(false, '1');
 		});
 	});
 });

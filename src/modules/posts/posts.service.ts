@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { ResponseMessageDto } from '../../common/response.dtos';
 import { Post } from './post.model';
@@ -27,10 +27,9 @@ export class PostsService {
 		}
 	}
 
-	public async create(createPostData: CreatePostDto): Promise<ResponseMessageDto> {
+	public async create(createPostData: CreatePostDto): Promise<Post> {
 		try {
-			await this._postsRepository.create<Post>({ ...createPostData });
-			return { message: 'create post:success', success: true };
+			return await this._postsRepository.create<Post>({ ...createPostData });
 		} catch (error) {
 			throw new BadRequestException(error.message);
 		}
@@ -56,34 +55,36 @@ export class PostsService {
 	}
 
 	public async makeLike(rollback: boolean, postUUID: string): Promise<ResponseMessageDto> {
-		try {
-			const post = await this._postsRepository.findOne<Post>({ where: { postUUID } });
+		const responseMessage: ResponseMessageDto = { message: 'like post:success', success: true };
+		const post = await this._postsRepository.findOne<Post>({ where: { postUUID } });
+		if (post) {
 			let newCountOfLikes = post.countOfLikes;
 			if (rollback) {
 				newCountOfLikes--;
+				responseMessage.message = 'rollback like post:success';
 			} else {
 				newCountOfLikes++;
 			}
 			await this._postsRepository.update<Post>({ countOfLikes: newCountOfLikes }, { where: { postUUID } });
-			return { message: 'like post:success', success: true };
-		} catch (error) {
-			throw new InternalServerErrorException(error.message);
+			return responseMessage;
 		}
+		throw new NotFoundException('post not found');
 	}
 
 	public async makeDisLike(rollback: boolean, postUUID: string): Promise<ResponseMessageDto> {
-		try {
-			const post = await this._postsRepository.findOne<Post>({ where: { postUUID } });
+		const responseMessage: ResponseMessageDto = { message: 'dislike post:success', success: true };
+		const post = await this._postsRepository.findOne<Post>({ where: { postUUID } });
+		if (post) {
 			let newCountOfDisLikes = post.countOfDislikes;
 			if (rollback) {
 				newCountOfDisLikes--;
+				responseMessage.message = 'rollback dislike post:success';
 			} else {
 				newCountOfDisLikes++;
 			}
 			await this._postsRepository.update<Post>({ countOfDislikes: newCountOfDisLikes }, { where: { postUUID } });
-			return { message: 'dislike post:success', success: true };
-		} catch (error) {
-			throw new InternalServerErrorException(error.message);
+			return responseMessage;
 		}
+		throw new NotFoundException('post not found');
 	}
 }
