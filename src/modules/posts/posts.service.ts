@@ -3,17 +3,24 @@ import { InjectModel } from '@nestjs/sequelize';
 import { ResponseMessageDto } from '../../common/response.dtos';
 import { Post } from './post.model';
 import { CreatePostDto } from './dto/createPost.dto';
+import { WhoLikedService } from './who-liked/whoLiked.service';
+import { WhoDislikedService } from './who-disliked/whoDisliked.service';
 
 @Injectable()
 export class PostsService {
 	constructor(
 		@InjectModel(Post)
-		private readonly _postsRepository: typeof Post
+		private readonly _postsRepository: typeof Post,
+		private readonly _whoLikedService: WhoLikedService,
+		private readonly _whoDislikedService: WhoDislikedService
 	) {}
 
 	public async findAll(userUUID: string): Promise<Post[]> {
 		try {
-			return await this._postsRepository.findAll<Post>({ where: { userUUID } });
+			return await this._postsRepository.findAll<Post>({
+				where: { userUUID }
+				// include: [{ model: WhoLikedModel }]
+			});
 		} catch (error) {
 			throw new InternalServerErrorException(error.message);
 		}
@@ -54,16 +61,21 @@ export class PostsService {
 		}
 	}
 
-	public async makeLike(rollback: boolean, postUUID: string): Promise<ResponseMessageDto> {
-		const responseMessage: ResponseMessageDto = { message: 'like post:success', success: true };
-		const post = await this._postsRepository.findOne<Post>({ where: { postUUID } });
+	public async makeLike(userUUID: string, postUUID: string, rollback: boolean): Promise<ResponseMessageDto> {
+		const responseMessage: ResponseMessageDto = { message: 'like:success', success: true };
+		const isLiked = !!(await this._whoLikedService.findOneByUserUUID(userUUID));
+		const post: Post = await this._postsRepository.findOne<Post>({ where: { postUUID } });
 		if (post) {
 			let newCountOfLikes = post.countOfLikes;
-			if (rollback) {
+			if (isLiked && rollback) {
+				await this._whoLikedService.rollbackLike(userUUID, postUUID);
 				newCountOfLikes--;
-				responseMessage.message = 'rollback like post:success';
-			} else {
+				responseMessage.message = 'rollback like:success';
+			} else if (!isLiked && !rollback) {
+				await this._whoLikedService.makeLike(userUUID, postUUID);
 				newCountOfLikes++;
+			} else {
+				throw new BadRequestException('you already have done like');
 			}
 			await this._postsRepository.update<Post>({ countOfLikes: newCountOfLikes }, { where: { postUUID } });
 			return responseMessage;
@@ -71,16 +83,21 @@ export class PostsService {
 		throw new NotFoundException('post not found');
 	}
 
-	public async makeDisLike(rollback: boolean, postUUID: string): Promise<ResponseMessageDto> {
-		const responseMessage: ResponseMessageDto = { message: 'dislike post:success', success: true };
-		const post = await this._postsRepository.findOne<Post>({ where: { postUUID } });
+	public async makeDisLike(userUUID: string, postUUID: string, rollback: boolean): Promise<ResponseMessageDto> {
+		const responseMessage: ResponseMessageDto = { message: 'dislike:success', success: true };
+		const isDisliked = !!(await this._whoDislikedService.findOneByUserUUID(userUUID));
+		const post: Post = await this._postsRepository.findOne<Post>({ where: { postUUID } });
 		if (post) {
 			let newCountOfDisLikes = post.countOfDislikes;
-			if (rollback) {
+			if (isDisliked && rollback) {
+				await this._whoDislikedService.rollbackDislike(userUUID, postUUID);
 				newCountOfDisLikes--;
-				responseMessage.message = 'rollback dislike post:success';
-			} else {
+				responseMessage.message = 'rollback dislike:success';
+			} else if (!isDisliked && !rollback) {
+				await this._whoDislikedService.makeDislike(userUUID, postUUID);
 				newCountOfDisLikes++;
+			} else {
+				throw new BadRequestException('you already have done dislike');
 			}
 			await this._postsRepository.update<Post>({ countOfDislikes: newCountOfDisLikes }, { where: { postUUID } });
 			return responseMessage;

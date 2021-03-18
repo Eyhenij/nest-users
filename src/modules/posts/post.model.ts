@@ -1,6 +1,8 @@
-import { Column, Table, DataType, Model, ForeignKey, BelongsTo, CreatedAt, UpdatedAt, DeletedAt } from 'sequelize-typescript';
+import { Column, Table, DataType, Model, ForeignKey, BelongsTo, CreatedAt, UpdatedAt, DeletedAt, HasMany } from 'sequelize-typescript';
 import { User } from '../users/user.model';
 import { ApiProperty } from '@nestjs/swagger';
+import { WhoLikedModel } from './who-liked/whoLiked.model';
+import { WhoDislikedModel } from './who-disliked/whoDisliked.model';
 
 @Table({ freezeTableName: true, tableName: 'posts' })
 export class Post extends Model {
@@ -46,4 +48,10 @@ export class Post extends Model {
 
 	@BelongsTo(() => User, { as: 'posts', onDelete: 'CASCADE' })
 	user: User;
+
+	@HasMany(() => WhoLikedModel, { as: 'whoLiked', onDelete: 'CASCADE' })
+	whoLiked: WhoLikedModel[];
+
+	@HasMany(() => WhoDislikedModel, { as: 'whoDisliked', onDelete: 'CASCADE' })
+	whoDisliked: WhoDislikedModel[];
 }

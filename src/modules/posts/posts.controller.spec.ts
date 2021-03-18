@@ -73,16 +73,16 @@ describe('PostsController', () => {
 		});
 
 		it('should return response-message', async () => {
-			expect(await postsController.makeLike('1', true)).toEqual(responseMessage);
+			expect(await postsController.makeLike('1', '1', true)).toEqual(responseMessage);
 		});
 
 		it('should return response-message', async () => {
-			expect(await postsController.makeLike('1', false)).toEqual(responseMessage);
+			expect(await postsController.makeLike('1', '1', true)).toEqual(responseMessage);
 		});
 
 		it('should call postsService.makeLike', async () => {
-			await postsController.makeLike('1', false);
-			expect(postsService.makeLike).toBeCalledWith(false, '1');
+			await postsController.makeLike('1', '1', true);
+			expect(postsService.makeLike).toBeCalledWith('1', '1', true);
 		});
 	});
 
@@ -92,16 +92,16 @@ describe('PostsController', () => {
 		});
 
 		it('should return response-message', async () => {
-			expect(await postsController.makeDisLike('1', true)).toEqual(responseMessage);
+			expect(await postsController.makeDisLike('1', '1', true)).toEqual(responseMessage);
 		});
 
 		it('should return response-message', async () => {
-			expect(await postsController.makeDisLike('1', false)).toEqual(responseMessage);
+			expect(await postsController.makeDisLike('1', '1', true)).toEqual(responseMessage);
 		});
 
 		it('should call postsService.makeDisLike', async () => {
-			await postsController.makeDisLike('1', false);
-			expect(postsService.makeDisLike).toBeCalledWith(false, '1');
+			await postsController.makeDisLike('1', '1', true);
+			expect(postsService.makeDisLike).toBeCalledWith('1', '1', true);
 		});
 	});
 });

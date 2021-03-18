@@ -4,9 +4,18 @@ import { getModelToken } from '@nestjs/sequelize';
 import { Post } from './post.model';
 import { BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from './dto/createPost.dto';
+import { WhoLikedService } from './who-liked/whoLiked.service';
+import { WhoDislikedService } from './who-disliked/whoDisliked.service';
+import { WhoDislikedModel } from './who-disliked/whoDisliked.model';
+import { WhoLikedModel } from './who-liked/whoLiked.model';
+
+jest.mock('./who-liked/whoLiked.service');
+jest.mock('./who-disliked/whoDisliked.service');
 
 describe('PostsService', () => {
 	let postsService: PostsService;
+	let whoLikedService: WhoLikedService;
+	let whoDislikedService: WhoDislikedService;
 	let postsRepository;
 
 	const testPost = { userUUID: 'test', title: 'test', content: 'test' };
@@ -22,9 +31,13 @@ describe('PostsService', () => {
 	};
 
 	beforeEach(async () => {
+		jest.resetAllMocks();
+
 		const moduleRef: TestingModule = await Test.createTestingModule({
 			providers: [
 				PostsService,
+				WhoLikedService,
+				WhoDislikedService,
 				{
 					provide: getModelToken(Post),
 					useValue: mockPostsRepo
@@ -33,6 +46,8 @@ describe('PostsService', () => {
 		}).compile();
 
 		postsService = moduleRef.get<PostsService>(PostsService);
+		whoLikedService = moduleRef.get<WhoLikedService>(WhoLikedService);
+		whoDislikedService = moduleRef.get<WhoDislikedService>(WhoDislikedService);
 		postsRepository = moduleRef.get<Post>(getModelToken(Post));
 	});
 
@@ -132,95 +147,163 @@ describe('PostsService', () => {
 	});
 
 	describe('makeLike', () => {
-		describe('return result', () => {
+		describe('if post exists and isLiked = true', () => {
 			beforeEach(() => {
 				jest.spyOn(postsRepository, 'findOne').mockReturnValueOnce(testPost as Post);
 				jest.spyOn(postsRepository, 'update').mockReturnValueOnce(testPost as Post);
+				jest.spyOn(whoLikedService, 'findOneByUserUUID').mockReturnValueOnce(
+					Promise.resolve((testPost as unknown) as WhoLikedModel)
+				);
 			});
 
 			it('should return response-message (with rollback: true)', async () => {
-				expect(await postsService.makeLike(true, '1')).toEqual({
-					message: 'rollback like post:success',
+				expect(await postsService.makeLike('1', '1', true)).toEqual({
+					message: 'rollback like:success',
 					success: true
 				});
 			});
 
 			it('should return response-message (with rollback: false)', async () => {
-				expect(await postsService.makeLike(false, '1')).toEqual({
-					message: 'like post:success',
-					success: true
-				});
+				await expect(postsService.makeLike('1', '1', false)).rejects.toThrow(BadRequestException);
 			});
 
 			it('should call postsRepository.findOne with postUUID-param', async () => {
-				await postsService.makeLike(true, '1');
+				await postsService.makeLike('1', '1', true);
 				expect(postsRepository.findOne).toBeCalledWith({ where: { postUUID: '1' } });
 			});
 
 			it('should call postsRepository.update', async () => {
-				await postsService.makeLike(true, '1');
+				await postsService.makeLike('1', '1', true);
 				expect(postsRepository.update).toBeCalled();
+			});
+
+			it('should call whoLikedService.findOneByUserUUID', async () => {
+				await postsService.makeLike('userUUID', '1', true);
+				expect(whoLikedService.findOneByUserUUID).toBeCalledWith('userUUID');
+			});
+
+			it('should call whoLikedService.rollbackLike', async () => {
+				await postsService.makeLike('userUUID', 'postUUID', true);
+				expect(whoLikedService.rollbackLike).toBeCalledWith('userUUID', 'postUUID');
 			});
 		});
 
-		describe('return exception', () => {
+		describe('if post does not exist and isLiked = false', () => {
+			beforeEach(() => {
+				jest.spyOn(postsRepository, 'findOne').mockReturnValueOnce(testPost as Post);
+				jest.spyOn(postsRepository, 'update').mockReturnValueOnce(testPost as Post);
+				jest.spyOn(whoLikedService, 'findOneByUserUUID').mockReturnValueOnce(Promise.resolve(null));
+			});
+
+			it('should return response-message (with rollback: false)', async () => {
+				expect(await postsService.makeLike('1', '1', false)).toEqual({
+					message: 'like:success',
+					success: true
+				});
+			});
+
+			it('should return exception (with rollback: true)', async () => {
+				await expect(postsService.makeLike('1', '1', true)).rejects.toThrow(BadRequestException);
+			});
+
+			it('should call whoLikedService.makeLike', async () => {
+				await postsService.makeLike('userUUID', 'postUUID', false);
+				expect(whoLikedService.makeLike).toBeCalledWith('userUUID', 'postUUID');
+			});
+		});
+
+		describe('should return exception', () => {
 			beforeEach(() => {
 				jest.spyOn(postsRepository, 'findOne').mockReturnValueOnce(Promise.resolve(null));
 			});
 
 			it('should throw NotFoundException', async () => {
-				await expect(postsService.makeLike(true, '1')).rejects.toThrow(NotFoundException);
+				await expect(postsService.makeLike('1', '1', true)).rejects.toThrow(NotFoundException);
 			});
 
 			it('should not throw other exception', async () => {
-				await expect(postsService.makeLike(true, '1')).rejects.not.toThrow(BadRequestException);
+				await expect(postsService.makeLike('1', '1', true)).rejects.not.toThrow(BadRequestException);
 			});
 		});
 	});
 
-	describe('makeDisLike', () => {
-		describe('return result', () => {
+	describe('makeDislike', () => {
+		describe('if post exists and isDisliked = true', () => {
 			beforeEach(() => {
 				jest.spyOn(postsRepository, 'findOne').mockReturnValueOnce(testPost as Post);
 				jest.spyOn(postsRepository, 'update').mockReturnValueOnce(testPost as Post);
+				jest.spyOn(whoDislikedService, 'findOneByUserUUID').mockReturnValueOnce(
+					Promise.resolve((testPost as unknown) as WhoDislikedModel)
+				);
 			});
 
 			it('should return response-message (with rollback: true)', async () => {
-				expect(await postsService.makeDisLike(true, '1')).toEqual({
-					message: 'rollback dislike post:success',
+				expect(await postsService.makeDisLike('1', '1', true)).toEqual({
+					message: 'rollback dislike:success',
 					success: true
 				});
 			});
 
-			it('should return response-message (with rollback: false)', async () => {
-				expect(await postsService.makeDisLike(false, '1')).toEqual({
-					message: 'dislike post:success',
-					success: true
-				});
+			it('should return exception (with rollback: false)', async () => {
+				await expect(postsService.makeDisLike('1', '1', false)).rejects.toThrow(BadRequestException);
 			});
 
 			it('should call postsRepository.findOne with postUUID-param', async () => {
-				await postsService.makeDisLike(true, '1');
+				await postsService.makeDisLike('1', '1', true);
 				expect(postsRepository.findOne).toBeCalledWith({ where: { postUUID: '1' } });
 			});
 
 			it('should call postsRepository.update', async () => {
-				await postsService.makeDisLike(true, '1');
+				await postsService.makeDisLike('1', '1', true);
 				expect(postsRepository.update).toBeCalled();
+			});
+
+			it('should call whoDislikedService.findOneByUserUUID', async () => {
+				await postsService.makeDisLike('userUUID', '1', true);
+				expect(whoDislikedService.findOneByUserUUID).toBeCalledWith('userUUID');
+			});
+
+			it('should call whoDislikedService.rollbackDislike', async () => {
+				await postsService.makeDisLike('userUUID', 'postUUID', true);
+				expect(whoDislikedService.rollbackDislike).toBeCalledWith('userUUID', 'postUUID');
 			});
 		});
 
-		describe('return exception', () => {
+		describe('if post does not exist and isDisliked = false', () => {
+			beforeEach(() => {
+				jest.spyOn(postsRepository, 'findOne').mockReturnValueOnce(testPost as Post);
+				jest.spyOn(postsRepository, 'update').mockReturnValueOnce(testPost as Post);
+				jest.spyOn(whoDislikedService, 'findOneByUserUUID').mockReturnValueOnce(Promise.resolve(null));
+			});
+
+			it('should return response-message (with rollback: false)', async () => {
+				expect(await postsService.makeDisLike('1', '1', false)).toEqual({
+					message: 'dislike:success',
+					success: true
+				});
+			});
+
+			it('should return exception (with rollback: true)', async () => {
+				await expect(postsService.makeDisLike('1', '1', true)).rejects.toThrow(BadRequestException);
+			});
+
+			it('should call whoDislikedService.makeDislike', async () => {
+				await postsService.makeDisLike('userUUID', 'postUUID', false);
+				expect(whoDislikedService.makeDislike).toBeCalledWith('userUUID', 'postUUID');
+			});
+		});
+
+		describe('should return exception', () => {
 			beforeEach(() => {
 				jest.spyOn(postsRepository, 'findOne').mockReturnValueOnce(Promise.resolve(null));
 			});
 
 			it('should throw NotFoundException', async () => {
-				await expect(postsService.makeDisLike(true, '1')).rejects.toThrow(NotFoundException);
+				await expect(postsService.makeDisLike('1', '1', true)).rejects.toThrow(NotFoundException);
 			});
 
 			it('should not throw other exception', async () => {
-				await expect(postsService.makeDisLike(true, '1')).rejects.not.toThrow(BadRequestException);
+				await expect(postsService.makeDisLike('1', '1', true)).rejects.not.toThrow(BadRequestException);
 			});
 		});
 	});

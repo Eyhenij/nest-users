@@ -93,9 +93,10 @@ export class PostsController {
 	@ApiResponse({ status: 404, description: 'userId not exist', type: NotFoundException })
 	public async makeLike(
 		@Param('postUUID', new ParseUUIDPipe()) postUUID: string,
+		@Query('userUUID', new ParseUUIDPipe()) userUUID: string,
 		@Query('rollback') rollback: boolean
 	): Promise<ResponseMessageDto> {
-		return await this._postsService.makeLike(rollback, postUUID);
+		return await this._postsService.makeLike(userUUID, postUUID, rollback);
 	}
 
 	@Put('dislike/:postUUID')
@@ -106,8 +107,9 @@ export class PostsController {
 	@ApiResponse({ status: 404, description: 'userId not exist', type: NotFoundException })
 	public async makeDisLike(
 		@Param('postUUID', new ParseUUIDPipe()) postUUID: string,
+		@Query('userUUID', new ParseUUIDPipe()) userUUID: string,
 		@Query('rollback') rollback: boolean
 	): Promise<ResponseMessageDto> {
-		return await this._postsService.makeDisLike(rollback, postUUID);
+		return await this._postsService.makeDisLike(userUUID, postUUID, rollback);
 	}
 }
