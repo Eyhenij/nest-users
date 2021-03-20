@@ -9,8 +9,8 @@ import { WhoDislikedService } from './who-disliked/who-disliked.service';
 import { WhoDislikedModel } from './who-disliked/who-disliked.model';
 import { WhoLikedModel } from './who-liked/who-liked.model';
 
-jest.mock('./who-liked/whoLiked.service');
-jest.mock('./who-disliked/whoDisliked.service');
+jest.mock('./who-liked/who-liked.service');
+jest.mock('./who-disliked/who-disliked.service');
 
 describe('PostsService', () => {
 	let postsService: PostsService;
@@ -179,7 +179,7 @@ describe('PostsService', () => {
 
 			it('should call whoLikedService.findOneByUserUUID', async () => {
 				await postsService.makeLike('userUUID', '1', true);
-				expect(whoLikedService.findOneByUserUUID).toBeCalledWith('userUUID');
+				expect(whoLikedService.findOneByUserUUID).toBeCalledWith('userUUID', '1');
 			});
 
 			it('should call whoLikedService.rollbackLike', async () => {
@@ -260,7 +260,7 @@ describe('PostsService', () => {
 
 			it('should call whoDislikedService.findOneByUserUUID', async () => {
 				await postsService.makeDisLike('userUUID', '1', true);
-				expect(whoDislikedService.findOneByUserUUID).toBeCalledWith('userUUID');
+				expect(whoDislikedService.findOneByUserUUID).toBeCalledWith('userUUID', '1');
 			});
 
 			it('should call whoDislikedService.rollbackDislike', async () => {
