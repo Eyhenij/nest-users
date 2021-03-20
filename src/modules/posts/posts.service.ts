@@ -18,10 +18,11 @@ export class PostsService {
 
 	public async findAll(userUUID: string): Promise<Post[]> {
 		try {
-			return await this._postsRepository.findAll<Post>({
+			const posts = await this._postsRepository.findAll<Post>({
 				where: { userUUID }
 				// include: [{ model: WhoLikedModel }]
 			});
+			return posts.sort((a, b) => (a.updatedAt >= b.updatedAt ? -1 : 1));
 		} catch (error) {
 			throw new InternalServerErrorException(error.message);
 		}
