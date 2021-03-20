@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { WhoLikedService } from './whoLiked.service';
+import { WhoLikedService } from './who-liked.service';
 import { getModelToken } from '@nestjs/sequelize';
-import { WhoLikedModel } from './whoLiked.model';
+import { WhoLikedModel } from './who-liked.model';
 
 describe('WhoLikedService', () => {
 	let whoLikedService: WhoLikedService;

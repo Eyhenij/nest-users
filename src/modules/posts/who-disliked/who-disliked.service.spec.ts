@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { WhoDislikedService } from './whoDisliked.service';
+import { WhoDislikedService } from './who-disliked.service';
 import { getModelToken } from '@nestjs/sequelize';
-import { WhoDislikedModel } from './whoDisliked.model';
-import { WhoLikedModel } from '../who-liked/whoLiked.model';
+import { WhoDislikedModel } from './who-disliked.model';
+import { WhoLikedModel } from '../who-liked/who-liked.model';
 
 describe('WhoDislikedService', () => {
 	let whoDislikedService: WhoDislikedService;

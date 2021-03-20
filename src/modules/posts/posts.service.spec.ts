@@ -4,10 +4,10 @@ import { getModelToken } from '@nestjs/sequelize';
 import { Post } from './post.model';
 import { BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from './dto/createPost.dto';
-import { WhoLikedService } from './who-liked/whoLiked.service';
-import { WhoDislikedService } from './who-disliked/whoDisliked.service';
-import { WhoDislikedModel } from './who-disliked/whoDisliked.model';
-import { WhoLikedModel } from './who-liked/whoLiked.model';
+import { WhoLikedService } from './who-liked/who-liked.service';
+import { WhoDislikedService } from './who-disliked/who-disliked.service';
+import { WhoDislikedModel } from './who-disliked/who-disliked.model';
+import { WhoLikedModel } from './who-liked/who-liked.model';
 
 jest.mock('./who-liked/whoLiked.service');
 jest.mock('./who-disliked/whoDisliked.service');

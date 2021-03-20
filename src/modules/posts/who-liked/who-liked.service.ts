@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { WhoLikedModel } from './whoLiked.model';
+import { WhoLikedModel } from './who-liked.model';
 
 @Injectable()
 export class WhoLikedService {
@@ -10,11 +10,17 @@ export class WhoLikedService {
 	) {}
 
 	public async findAll(postUUID: string): Promise<WhoLikedModel[]> {
-		return await this._whoLikedRepository.findAll<WhoLikedModel>({ where: { postUUID } });
+		return await this._whoLikedRepository.findAll<WhoLikedModel>({
+			where: { postUUID },
+			attributes: { exclude: ['postUUID', 'id'] }
+		});
 	}
 
-	public async findOneByUserUUID(userUUID: string): Promise<WhoLikedModel> {
-		return await this._whoLikedRepository.findOne<WhoLikedModel>({ where: { userUUID } });
+	public async findOneByUserUUID(userUUID: string, postUUID: string): Promise<WhoLikedModel> {
+		return await this._whoLikedRepository.findOne<WhoLikedModel>({
+			where: { userUUID, postUUID },
+			attributes: { exclude: ['id'] }
+		});
 	}
 
 	public async makeLike(userUUID: string, postUUID: string): Promise<void> {

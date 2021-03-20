@@ -1,8 +1,8 @@
 import { Column, Table, DataType, Model, ForeignKey, BelongsTo, CreatedAt, UpdatedAt, DeletedAt, HasMany } from 'sequelize-typescript';
 import { User } from '../users/user.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { WhoLikedModel } from './who-liked/whoLiked.model';
-import { WhoDislikedModel } from './who-disliked/whoDisliked.model';
+import { WhoLikedModel } from './who-liked/who-liked.model';
+import { WhoDislikedModel } from './who-disliked/who-disliked.model';
 
 @Table({ freezeTableName: true, tableName: 'posts' })
 export class Post extends Model {

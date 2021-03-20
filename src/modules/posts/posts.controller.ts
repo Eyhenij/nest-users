@@ -21,6 +21,7 @@ import { PostsService } from './posts.service';
 import { Post as UsersPost } from './post.model';
 import { CreatePostDto } from './dto/createPost.dto';
 import { AuthTokenGuard } from '../../guards/auth.token.guard';
+import { WasPostLikedDto } from './dto/was-post-liked.dto';
 
 @Controller('api/posts')
 @ApiTags('users posts')
@@ -85,9 +86,22 @@ export class PostsController {
 		return await this._postsService.remove(postUUID);
 	}
 
+	@Get('like/:postUUID')
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({ description: '' })
+	@ApiResponse({ status: 200, description: 'boolean-value if post was liked by this user', type: WasPostLikedDto })
+	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
+	@ApiResponse({ status: 404, description: 'userId not exist', type: NotFoundException })
+	public async wasLiked(
+		@Param('postUUID', new ParseUUIDPipe()) postUUID: string,
+		@Query('userUUID', new ParseUUIDPipe()) userUUID: string
+	): Promise<WasPostLikedDto> {
+		return await this._postsService.wasLiked(userUUID, postUUID);
+	}
+
 	@Put('like/:postUUID')
 	@HttpCode(HttpStatus.CREATED)
-	@ApiOperation({ description: 'update one post by id' })
+	@ApiOperation({ description: 'make like of post by post id' })
 	@ApiResponse({ status: 201, description: 'like post:success', type: ResponseMessageDto })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
 	@ApiResponse({ status: 404, description: 'userId not exist', type: NotFoundException })
@@ -99,9 +113,22 @@ export class PostsController {
 		return await this._postsService.makeLike(userUUID, postUUID, rollback);
 	}
 
+	@Get('dislike/:postUUID')
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({ description: '' })
+	@ApiResponse({ status: 200, description: 'boolean-value if post was liked by this user', type: WasPostLikedDto })
+	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
+	@ApiResponse({ status: 404, description: 'userId not exist', type: NotFoundException })
+	public async wasDisliked(
+		@Param('postUUID', new ParseUUIDPipe()) postUUID: string,
+		@Query('userUUID', new ParseUUIDPipe()) userUUID: string
+	): Promise<WasPostLikedDto> {
+		return await this._postsService.wasDisliked(userUUID, postUUID);
+	}
+
 	@Put('dislike/:postUUID')
 	@HttpCode(HttpStatus.CREATED)
-	@ApiOperation({ description: 'update one post by id' })
+	@ApiOperation({ description: 'make dislike of post by post id' })
 	@ApiResponse({ status: 201, description: 'dislike post:success', type: ResponseMessageDto })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
 	@ApiResponse({ status: 404, description: 'userId not exist', type: NotFoundException })
