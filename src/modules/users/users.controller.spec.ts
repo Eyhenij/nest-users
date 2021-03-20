@@ -3,7 +3,7 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { AuthService } from '../auth/auth.service';
 import { User } from './user.model';
-import { ResponseMessageDto } from '../../interfaces/response.dtos';
+import { ResponseMessageDto } from '../../common/response.dtos';
 import { CreateUserDto } from './dto/createUser.dto';
 import { UpdateAllUsersDto } from './dto/updateAllUsersDto';
 import { UpdateUserDto } from './dto/updateUser.dto';

@@ -11,7 +11,7 @@ describe('UsersService', () => {
 	let userRepository;
 
 	const testUser = { name: 'Mary', login: '@mary', email: 'mary@gmail.com' };
-	const mockUserRepo = {
+	const mockUsersRepo = {
 		findAll: jest.fn(),
 		findOne: jest.fn(),
 		create: jest.fn(),
@@ -28,7 +28,7 @@ describe('UsersService', () => {
 				UsersService,
 				{
 					provide: getModelToken(User),
-					useValue: mockUserRepo
+					useValue: mockUsersRepo
 				}
 			]
 		}).compile();

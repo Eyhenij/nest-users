@@ -31,14 +31,14 @@ describe('DoesUserExistGuard', () => {
 	});
 
 	it('should call checkUserExist', async () => {
-		mockExecutionContext.switchToHttp().getRequest().params = { id: '1' };
+		mockExecutionContext.switchToHttp().getRequest().params = { userUUID: '1' };
 		jest.spyOn(authService, 'checkUserExist').mockReturnValueOnce(Promise.resolve(true));
 		await doesUserExistGuard.canActivate(mockExecutionContext);
 		expect(authService.checkUserExist).toBeCalledWith('1');
 	});
 
 	it('should return true', async () => {
-		mockExecutionContext.switchToHttp().getRequest().params = { id: '1' };
+		mockExecutionContext.switchToHttp().getRequest().params = { userUUID: '1' };
 		jest.spyOn(authService, 'checkUserExist').mockReturnValueOnce(Promise.resolve(true));
 		expect(await doesUserExistGuard.canActivate(mockExecutionContext)).toBeTruthy();
 	});

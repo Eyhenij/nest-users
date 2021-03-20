@@ -1,53 +1,32 @@
-import { Contains, IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { Contains, IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
-	@ApiProperty({
-		required: true,
-		type: 'string'
-	})
+	@ApiProperty({ required: true, type: 'string' })
 	@IsNotEmpty()
 	@IsString()
 	readonly name: string;
 
-	@ApiProperty({
-		required: true,
-		type: 'string',
-		minLength: 3,
-		example: '@login',
-		uniqueItems: true
-	})
+	@ApiProperty({ required: true, type: 'string', minLength: 3, example: '@login', uniqueItems: true })
 	@IsNotEmpty()
 	@IsString()
 	@Contains('@')
 	@MinLength(3)
 	readonly login: string;
 
-	@ApiProperty({
-		required: true,
-		type: 'email',
-		example: 'example@email.com',
-		uniqueItems: true
-	})
+	@ApiProperty({ required: true, type: 'email', example: 'example@email.com', uniqueItems: true })
 	@IsNotEmpty()
 	@IsEmail()
 	readonly email: string;
 
-	@ApiProperty({
-		required: true,
-		type: 'string',
-		minLength: 8
-	})
+	@ApiProperty({ required: true, type: 'string', minLength: 8 })
 	@IsNotEmpty()
 	@IsString()
 	@MinLength(8)
 	readonly password: string;
 
-	@ApiProperty({
-		required: false,
-		type: 'string',
-		example: 'user'
-	})
+	@ApiProperty({ required: false, type: 'string', example: 'user' })
+	@IsOptional()
 	@IsString()
 	public role: string;
 }
