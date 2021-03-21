@@ -44,7 +44,7 @@ export class PostsController {
 	@ApiOperation({ description: 'get one post by id' })
 	@ApiResponse({ status: 200, description: 'get one post:success', type: UsersPost })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
-	@ApiResponse({ status: 404, description: 'userId not exist', type: NotFoundException })
+	@ApiResponse({ status: 404, description: 'userId does not exist', type: NotFoundException })
 	public async findOne(
 		@Param('userUUID', new ParseUUIDPipe()) userUUID: string,
 		@Query('postUUID', new ParseUUIDPipe()) postUUID: string
@@ -67,7 +67,7 @@ export class PostsController {
 	@ApiOperation({ description: 'update one post by id' })
 	@ApiResponse({ status: 201, description: 'update post:success', type: ResponseMessageDto })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
-	@ApiResponse({ status: 404, description: 'userId not exist', type: NotFoundException })
+	@ApiResponse({ status: 404, description: 'post does not exist', type: NotFoundException })
 	@ApiBody({ type: CreateUserDto })
 	public async updateOne(
 		@Body() updatePostData: CreatePostDto,
@@ -81,17 +81,17 @@ export class PostsController {
 	@ApiOperation({ description: 'delete post by id' })
 	@ApiResponse({ status: 200, description: 'delete post:success', type: ResponseMessageDto })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
-	@ApiResponse({ status: 404, description: 'postId does not exist', type: NotFoundException })
+	@ApiResponse({ status: 404, description: 'post does not exist', type: NotFoundException })
 	public async remove(@Param('postUUID', new ParseUUIDPipe()) postUUID: string): Promise<ResponseMessageDto> {
 		return await this._postsService.remove(postUUID);
 	}
 
 	@Get('like/:postUUID')
 	@HttpCode(HttpStatus.OK)
-	@ApiOperation({ description: '' })
-	@ApiResponse({ status: 200, description: 'boolean-value if post was liked by this user', type: WasPostLikedDto })
+	@ApiOperation({ description: 'boolean-value if post was liked by this user' })
+	@ApiResponse({ status: 200, description: 'value = true | false', type: WasPostLikedDto })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
-	@ApiResponse({ status: 404, description: 'userId not exist', type: NotFoundException })
+	@ApiResponse({ status: 404, description: 'post does not exist', type: NotFoundException })
 	public async wasLiked(
 		@Param('postUUID', new ParseUUIDPipe()) postUUID: string,
 		@Query('userUUID', new ParseUUIDPipe()) userUUID: string
@@ -104,7 +104,7 @@ export class PostsController {
 	@ApiOperation({ description: 'make like of post by post id' })
 	@ApiResponse({ status: 201, description: 'like post:success', type: ResponseMessageDto })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
-	@ApiResponse({ status: 404, description: 'userId not exist', type: NotFoundException })
+	@ApiResponse({ status: 404, description: 'post does not exist', type: NotFoundException })
 	public async makeLike(
 		@Param('postUUID', new ParseUUIDPipe()) postUUID: string,
 		@Query('userUUID', new ParseUUIDPipe()) userUUID: string,
@@ -115,10 +115,10 @@ export class PostsController {
 
 	@Get('dislike/:postUUID')
 	@HttpCode(HttpStatus.OK)
-	@ApiOperation({ description: '' })
-	@ApiResponse({ status: 200, description: 'boolean-value if post was liked by this user', type: WasPostLikedDto })
+	@ApiOperation({ description: 'boolean-value if post was liked by this user' })
+	@ApiResponse({ status: 200, description: 'value = true | false', type: WasPostLikedDto })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
-	@ApiResponse({ status: 404, description: 'userId not exist', type: NotFoundException })
+	@ApiResponse({ status: 404, description: 'post does not exist', type: NotFoundException })
 	public async wasDisliked(
 		@Param('postUUID', new ParseUUIDPipe()) postUUID: string,
 		@Query('userUUID', new ParseUUIDPipe()) userUUID: string
@@ -131,7 +131,7 @@ export class PostsController {
 	@ApiOperation({ description: 'make dislike of post by post id' })
 	@ApiResponse({ status: 201, description: 'dislike post:success', type: ResponseMessageDto })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
-	@ApiResponse({ status: 404, description: 'userId not exist', type: NotFoundException })
+	@ApiResponse({ status: 404, description: 'post does not exist', type: NotFoundException })
 	public async makeDisLike(
 		@Param('postUUID', new ParseUUIDPipe()) postUUID: string,
 		@Query('userUUID', new ParseUUIDPipe()) userUUID: string,

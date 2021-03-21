@@ -36,16 +36,16 @@ describe('WhoLikedService', () => {
 	});
 
 	describe('findAll', () => {
-		it('should return an data-array', async () => {
+		it('should return an array of users who liked post', async () => {
 			jest.spyOn(whoLikedRepository, 'findAll').mockReturnValueOnce([testModel as WhoLikedModel]);
 			expect(await whoLikedService.findAll('postUUID')).toEqual([testModel as WhoLikedModel]);
 		});
 	});
 
 	describe('findOneByUserUUID', () => {
-		it('should return an data-array', async () => {
+		it('should return one user liked post', async () => {
 			jest.spyOn(whoLikedRepository, 'findOne').mockReturnValueOnce(testModel as WhoLikedModel);
-			expect(await whoLikedService.findOneByUserUUID('userUUID')).toEqual(testModel as WhoLikedModel);
+			expect(await whoLikedService.findOneByUserUUID('userUUID', 'postUUID')).toEqual(testModel as WhoLikedModel);
 		});
 	});
 
