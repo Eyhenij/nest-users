@@ -44,7 +44,7 @@ export class PostsController {
 	@ApiOperation({ description: 'get one post by id' })
 	@ApiResponse({ status: 200, description: 'get one post:success', type: UsersPost })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
-	@ApiResponse({ status: 404, description: 'userId not exist', type: NotFoundException })
+	@ApiResponse({ status: 404, description: 'userId does not exist', type: NotFoundException })
 	public async findOne(
 		@Param('userUUID', new ParseUUIDPipe()) userUUID: string,
 		@Query('postUUID', new ParseUUIDPipe()) postUUID: string

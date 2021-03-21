@@ -4,6 +4,7 @@ import { Comment } from './comment.model';
 import { ResponseMessageDto } from '../../common/response.dtos';
 import { CreateCommentDto } from './dto/createComment.dto';
 import { UpdateCommentDto } from './dto/updateComment.dto';
+import { CommentContainerDto } from './dto/commentContainerDto';
 
 @Injectable()
 export class CommentsService {
@@ -12,12 +13,10 @@ export class CommentsService {
 		private readonly _commentsRepository: typeof Comment
 	) {}
 
-	public async findAll(parentUUID: string): Promise<Comment[]> {
-		return await this._commentsRepository.findAll<Comment>({ where: { parentUUID } });
-	}
-
-	public async findOneByUUID(commentUUID: string): Promise<Comment> {
-		return await this._commentsRepository.findOne<Comment>({ where: { commentUUID } });
+	public async findAll(parentUUID: string): Promise<CommentContainerDto> {
+		const comments = await this._commentsRepository.findAll<Comment>({ where: { parentUUID } });
+		comments.sort((a, b) => (a.updatedAt >= b.updatedAt ? -1 : 1));
+		return { parentUUID: parentUUID, comments: [...comments] };
 	}
 
 	public async create(createCommentData: CreateCommentDto): Promise<Comment> {

@@ -5,12 +5,12 @@ export class CreateCommentDto {
 	@ApiProperty({ required: true, type: 'string' })
 	@IsNotEmpty()
 	@IsString()
-	public userUUID: string;
+	public parentUUID: string;
 
 	@ApiProperty({ required: true, type: 'string' })
 	@IsNotEmpty()
 	@IsString()
-	public parentUUID: string;
+	public userUUID: string;
 
 	@ApiProperty({ required: true, type: 'string' })
 	@IsNotEmpty()

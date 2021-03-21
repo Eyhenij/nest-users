@@ -6,7 +6,6 @@ import {
 	HttpCode,
 	HttpStatus,
 	NotFoundException,
-	Param,
 	ParseUUIDPipe,
 	Post,
 	Put,
@@ -21,8 +20,9 @@ import { CommentsService } from './comments.service';
 import { Comment } from './comment.model';
 import { CreateCommentDto } from './dto/createComment.dto';
 import { UpdateCommentDto } from './dto/updateComment.dto';
+import { CommentContainerDto } from './dto/commentContainerDto';
 
-@Controller('comments')
+@Controller('api/comments')
 @ApiTags('comments')
 @ApiBearerAuth()
 @UseGuards(AuthTokenGuard)
@@ -34,18 +34,9 @@ export class CommentsController {
 	@ApiOperation({ description: 'get all comments of chosen parent' })
 	@ApiResponse({ status: 200, description: 'get array of comments:success', type: [Comment] })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
-	public async findAll(@Query('userUUID', new ParseUUIDPipe()) userUUID: string): Promise<Comment[]> {
-		return await this._commentsService.findAll(userUUID);
-	}
-
-	@Get(':commentUUID')
-	@HttpCode(HttpStatus.OK)
-	@ApiOperation({ description: 'get one comment by id' })
-	@ApiResponse({ status: 200, description: 'get one comment:success', type: Comment })
-	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
-	@ApiResponse({ status: 404, description: 'comment does not exist', type: NotFoundException })
-	public async findOne(@Param('commentUUID', new ParseUUIDPipe()) commentUUID: string): Promise<Comment> {
-		return await this._commentsService.findOneByUUID(commentUUID);
+	@ApiResponse({ status: 404, description: 'not found', type: NotFoundException })
+	public async findAll(@Query('parentUUID', new ParseUUIDPipe()) parentUUID: string): Promise<CommentContainerDto> {
+		return await this._commentsService.findAll(parentUUID);
 	}
 
 	@Post()
@@ -64,18 +55,18 @@ export class CommentsController {
 	@ApiResponse({ status: 201, description: 'update comment:success', type: ResponseMessageDto })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
 	@ApiResponse({ status: 404, description: 'comment does not exist', type: NotFoundException })
-	@ApiBody({ type: CreateCommentDto })
+	@ApiBody({ type: UpdateCommentDto })
 	public async updateOne(@Body() updateCommentData: UpdateCommentDto): Promise<ResponseMessageDto> {
 		return await this._commentsService.updateOne(updateCommentData);
 	}
 
-	@Delete(':commentUUID')
+	@Delete()
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ description: 'delete comment by id' })
 	@ApiResponse({ status: 200, description: 'delete post:success', type: ResponseMessageDto })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
 	@ApiResponse({ status: 404, description: 'comment does not exist', type: NotFoundException })
-	public async remove(@Param('commentUUID', new ParseUUIDPipe()) commentUUID: string): Promise<ResponseMessageDto> {
+	public async remove(@Query('commentUUID', new ParseUUIDPipe()) commentUUID: string): Promise<ResponseMessageDto> {
 		return await this._commentsService.remove(commentUUID);
 	}
 }
