@@ -22,6 +22,7 @@ import { Post as UsersPost } from './post.model';
 import { CreatePostDto } from './dto/createPost.dto';
 import { AuthTokenGuard } from '../../guards/auth.token.guard';
 import { WasPostLikedDto } from './dto/was-post-liked.dto';
+import { CurrentPostsResponseDto } from './dto/currentPostsResponse.dto';
 
 @Controller('api/posts')
 @ApiTags('users posts')
@@ -37,6 +38,19 @@ export class PostsController {
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
 	public async findAll(@Query('userUUID', new ParseUUIDPipe()) userUUID: string): Promise<UsersPost[]> {
 		return await this._postsService.findAll(userUUID);
+	}
+
+	@Get('current')
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({ description: 'get all posts of chosen user' })
+	@ApiResponse({ status: 200, description: 'get array of posts:success', type: CurrentPostsResponseDto })
+	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
+	public async findCurrent(
+		@Query('userUUID', new ParseUUIDPipe()) userUUID: string,
+		@Query('currentPage') currentPage: number,
+		@Query('pageSize') pageSize: number
+	): Promise<CurrentPostsResponseDto> {
+		return await this._postsService.findCurrent(userUUID, currentPage, pageSize);
 	}
 
 	@Get(':userUUID')

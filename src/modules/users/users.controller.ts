@@ -11,6 +11,7 @@ import {
 	ParseUUIDPipe,
 	Post,
 	Put,
+	Query,
 	UnauthorizedException,
 	UseGuards
 } from '@nestjs/common';
@@ -25,6 +26,7 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nes
 import { UpdateAllUsersDto } from './dto/updateAllUsersDto';
 import { RoleGuard } from '../../guards/role.guard';
 import { DoesLoginExistGuard } from '../../guards/does-login-exist.guard';
+import { CurrentUsersResponseDto } from './dto/currentUsersResponse.dto';
 
 @Controller('api/users')
 @ApiTags('user-accounts')
@@ -40,6 +42,18 @@ export class UsersController {
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
 	public async findAll(): Promise<User[]> {
 		return await this._usersService.findAll();
+	}
+
+	@Get('current')
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({ description: 'get all user-accounts' })
+	@ApiResponse({ status: 200, description: 'get array of user-accounts:success', type: CurrentUsersResponseDto })
+	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
+	public async findCurrent(
+		@Query('currentPage') currentPage: number,
+		@Query('pageSize') pageSize: number
+	): Promise<CurrentUsersResponseDto> {
+		return await this._usersService.findCurrent(currentPage, pageSize);
 	}
 
 	@Get(':userUUID')
