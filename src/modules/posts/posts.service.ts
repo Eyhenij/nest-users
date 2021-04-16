@@ -23,7 +23,7 @@ export class PostsService {
 				where: { userUUID }
 				// include: [{ model: WhoLikedModel }]
 			});
-			return posts.sort((a, b) => (a.updatedAt >= b.updatedAt ? -1 : 1));
+			return posts.sort((l: Post, r: Post): number => (l.updatedAt >= r.updatedAt ? -1 : 1));
 		} catch (error) {
 			throw new InternalServerErrorException(error.message);
 		}
@@ -32,7 +32,7 @@ export class PostsService {
 	public async findCurrent(userUUID: string, currentPage: number, pageSize: number): Promise<CurrentPostsResponseDto> {
 		try {
 			const posts = await this._postsRepository.findAll<Post>({ where: { userUUID } });
-			posts.sort((a, b) => (a.updatedAt >= b.updatedAt ? -1 : 1));
+			posts.sort((l: Post, r: Post): number => (l.updatedAt >= r.updatedAt ? -1 : 1));
 			return {
 				totalCount: posts.length,
 				items: posts.slice((currentPage - 1) * pageSize, currentPage * pageSize)
