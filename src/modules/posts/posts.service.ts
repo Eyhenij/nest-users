@@ -6,6 +6,7 @@ import { CreatePostDto } from './dto/createPost.dto';
 import { WhoLikedService } from './who-liked/who-liked.service';
 import { WhoDislikedService } from './who-disliked/who-disliked.service';
 import { WasPostLikedDto } from './dto/was-post-liked.dto';
+import { CurrentPostsResponseDto } from './dto/currentPostsResponse.dto';
 
 @Injectable()
 export class PostsService {
@@ -22,7 +23,20 @@ export class PostsService {
 				where: { userUUID }
 				// include: [{ model: WhoLikedModel }]
 			});
-			return posts.sort((a, b) => (a.updatedAt >= b.updatedAt ? -1 : 1));
+			return posts.sort((l: Post, r: Post): number => (l.updatedAt >= r.updatedAt ? -1 : 1));
+		} catch (error) {
+			throw new InternalServerErrorException(error.message);
+		}
+	}
+
+	public async findCurrent(userUUID: string, currentPage: number, pageSize: number): Promise<CurrentPostsResponseDto> {
+		try {
+			const posts = await this._postsRepository.findAll<Post>({ where: { userUUID } });
+			posts.sort((l: Post, r: Post): number => (l.updatedAt >= r.updatedAt ? -1 : 1));
+			return {
+				totalCount: posts.length,
+				items: posts.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+			};
 		} catch (error) {
 			throw new InternalServerErrorException(error.message);
 		}

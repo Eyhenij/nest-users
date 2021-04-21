@@ -5,6 +5,7 @@ import { UpdateUserDto } from './dto/updateUser.dto';
 import { CreateUserDto } from './dto/createUser.dto';
 import { ResponseMessageDto } from '../../common/response.dtos';
 import { UpdateAllUsersDto } from './dto/updateAllUsersDto';
+import { CurrentUsersResponseDto } from './dto/currentUsersResponse.dto';
 
 @Injectable()
 export class UsersService {
@@ -21,6 +22,18 @@ export class UsersService {
 	public async findAll(): Promise<User[]> {
 		try {
 			return await this._usersRepository.findAll<User>({ attributes: { exclude: ['password'] } });
+		} catch (error) {
+			throw new InternalServerErrorException(error.message);
+		}
+	}
+
+	public async findCurrent(currentPage: number, pageSize: number): Promise<CurrentUsersResponseDto> {
+		try {
+			const users = await this._usersRepository.findAll<User>({ attributes: { exclude: ['password'] } });
+			return {
+				totalCount: users.length,
+				items: users.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+			};
 		} catch (error) {
 			throw new InternalServerErrorException(error.message);
 		}

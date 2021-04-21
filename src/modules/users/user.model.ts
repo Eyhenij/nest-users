@@ -2,6 +2,8 @@ import { Column, Table, DataType, Model, HasMany } from 'sequelize-typescript';
 import * as bcrypt from 'bcrypt';
 import { Post } from '../posts/post.model';
 import { ApiProperty } from '@nestjs/swagger';
+import { Following } from '../followers/following/following.model';
+import { Followed } from '../followers/followed/followed.model';
 
 @Table({ timestamps: false, freezeTableName: true, tableName: 'users' })
 export class User extends Model {
@@ -42,4 +44,10 @@ export class User extends Model {
 
 	@HasMany(() => Post, { as: 'posts', onDelete: 'CASCADE' })
 	posts: Post[];
+
+	@HasMany(() => Post, { as: 'following', onDelete: 'CASCADE' })
+	following: Following[];
+
+	@HasMany(() => Post, { as: 'followed', onDelete: 'CASCADE' })
+	followed: Followed[];
 }

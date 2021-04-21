@@ -6,6 +6,7 @@ import { ResponseMessageDto } from '../../common/response.dtos';
 import { CreateCommentDto } from './dto/createComment.dto';
 import { Comment } from './comment.model';
 import { UpdateCommentDto } from './dto/updateComment.dto';
+import { CommentContainerDto } from './dto/commentContainerDto';
 
 jest.mock('../auth/auth.service');
 jest.mock('./comments.service');
@@ -35,15 +36,10 @@ describe('CommentsController', () => {
 
 	describe('findAll', () => {
 		it('should return an array of users', async () => {
-			jest.spyOn(commentsService, 'findAll').mockReturnValueOnce(Promise.resolve([testComment] as Comment[]));
+			jest.spyOn(commentsService, 'findAll').mockReturnValueOnce(Promise.resolve(
+				([testComment] as unknown) as CommentContainerDto)
+			);
 			expect(await commentsController.findAll('1')).toEqual([testComment]);
-		});
-	});
-
-	describe('findOne', () => {
-		it('should return one user', async () => {
-			jest.spyOn(commentsService, 'findOneByUUID').mockReturnValueOnce(Promise.resolve(testComment as Comment));
-			expect(await commentsController.findOne('1')).toEqual(testComment);
 		});
 	});
 

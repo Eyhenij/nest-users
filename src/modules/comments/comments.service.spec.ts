@@ -4,12 +4,17 @@ import { getModelToken } from '@nestjs/sequelize';
 import { Comment } from './comment.model';
 import { CreateCommentDto } from './dto/createComment.dto';
 import { UpdateCommentDto } from './dto/updateComment.dto';
+import { CommentContainerDto } from './dto/commentContainerDto';
 
 describe('CommentsService', () => {
 	let commentService: CommentsService;
 	let commentRepository;
 
 	const testComment = { userUUID: 'test', parentUUID: 'test', content: 'test' };
+	const testCommentContainer = {
+		parentUUID: 'postUUID',
+		comments: [testComment]
+	};
 
 	const mockCommentRepo = {
 		findAll: jest.fn(),
@@ -39,16 +44,9 @@ describe('CommentsService', () => {
 	});
 
 	describe('findAll', () => {
-		it('should return an array of comments', async () => {
-			jest.spyOn(commentRepository, 'findAll').mockReturnValueOnce([testComment as Comment]);
-			expect(await commentService.findAll('postUUID')).toEqual([testComment as Comment]);
-		});
-	});
-
-	describe('findOneByUUID', () => {
-		it('should return one comment', async () => {
-			jest.spyOn(commentRepository, 'findOne').mockReturnValueOnce(testComment as Comment);
-			expect(await commentService.findOneByUUID('userUUID')).toEqual(testComment as Comment);
+		it('should return an array of comments-container', async () => {
+			jest.spyOn(commentRepository, 'findAll').mockReturnValueOnce([testComment] as Comment[]);
+			expect(await commentService.findAll('postUUID')).toEqual(testCommentContainer as CommentContainerDto);
 		});
 	});
 

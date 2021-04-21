@@ -32,7 +32,7 @@ export class CommentsController {
 	@Get()
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ description: 'get all comments of chosen parent' })
-	@ApiResponse({ status: 200, description: 'get array of comments:success', type: [Comment] })
+	@ApiResponse({ status: 200, description: 'get array of comments:success', type: [CommentContainerDto] })
 	@ApiResponse({ status: 401, description: 'unauthorized', type: UnauthorizedException })
 	@ApiResponse({ status: 404, description: 'not found', type: NotFoundException })
 	public async findAll(@Query('parentUUID', new ParseUUIDPipe()) parentUUID: string): Promise<CommentContainerDto> {
